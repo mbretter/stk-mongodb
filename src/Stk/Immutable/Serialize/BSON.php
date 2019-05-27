@@ -9,7 +9,7 @@ use DateTimeZone;
 
 trait BSON
 {
-    public function _bsonSerialize(array $data)
+    public function bsonSerialize(array $data)
     {
         array_walk_recursive($data, function (&$v, $k) {
             if ($v instanceof DateTime) {
@@ -25,7 +25,7 @@ trait BSON
         return $data;
     }
 
-    public function _bsonUnserialize(array $data)
+    public function bsonUnserialize(array $data)
     {
         array_walk_recursive($data, function (&$v, $k) {
             if ($v instanceof UTCDateTime) {

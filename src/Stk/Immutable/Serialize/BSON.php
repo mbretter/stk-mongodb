@@ -1,37 +1,23 @@
 <?php
 
-namespace Stk\MongoDB;
+namespace Stk\Immutable\Serialize;
 
 use MongoDB\BSON\ObjectId;
-use MongoDB\BSON\Persistable;
 use MongoDB\BSON\UTCDateTime;
 use DateTime;
 use DateTimeZone;
-use Stk\Immutable\Additions\ToArray;
-use Stk\Immutable\Immutable;
 
-class BSON implements Persistable
+trait BSON
 {
-    use Immutable;
-    use ToArray;
-
-    public function __construct($data = null)
+    private function _bsonSerialize(array $data)
     {
-        $this->_data = $data;
-    }
-
-
-    public function bsonSerialize()
-    {
-        $data = $this->dataToArray($this->_data);
-
         array_walk_recursive($data, function (&$v, $k) {
             if ($v instanceof DateTime) {
-                $v = new UTCDatetime($v->getTimestamp() * 1000);
+                $v = new UTCDatetime($v);
             }
         });
 
-        $_id = $this->get('_id');
+        $_id = $data['_id'];
         if (is_string($_id) && strlen($_id)) {
             $data['_id'] = new ObjectId($_id);
         }
@@ -39,7 +25,7 @@ class BSON implements Persistable
         return $data;
     }
 
-    public function bsonUnserialize(array $data)
+    private function _bsonUnserialize(array $data)
     {
         array_walk_recursive($data, function (&$v, $k) {
             if ($v instanceof UTCDateTime) {
@@ -49,6 +35,6 @@ class BSON implements Persistable
             }
         });
 
-        $this->_data = $data;
+        return $data;
     }
 }

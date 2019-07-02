@@ -2,11 +2,14 @@
 
 namespace StkTest\MongoDB;
 
+use DateTime;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\Persistable;
 use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
+use Stk\Immutable\Map;
+use Stk\Immutable\Serialize\BSON;
 
-use Stk\MongoDB\BSON;
 
 class BSONTest extends TestCase
 {
@@ -18,14 +21,14 @@ class BSONTest extends TestCase
 
     public function testSerializeWithId()
     {
-        $a = new BSON((object)['_id' => '5c49d90ffbab771ca667abe1', 'x' => 'foo', 'y' => 'bar']);
+        $a = new BSONData((object)['_id' => '5c49d90ffbab771ca667abe1', 'x' => 'foo', 'y' => 'bar']);
         $this->assertEquals([
             '_id' => new ObjectId('5c49d90ffbab771ca667abe1'),
             'x'   => 'foo',
             'y'   => 'bar',
         ], $a->bsonSerialize());
 
-        $b = new BSON((object)['x' => 'foo', 'y' => 'bar', 'z' => (object)['_id' => '5c49d90ffbab771ca667abe1']]);
+        $b = new BSONData((object)['x' => 'foo', 'y' => 'bar', 'z' => (object)['_id' => '5c49d90ffbab771ca667abe1']]);
         $this->assertEquals([
             'x' => 'foo',
             'y' => 'bar',
@@ -38,13 +41,14 @@ class BSONTest extends TestCase
 
     public function testSerializeWithInlineId()
     {
-        $a = new BSON((object)[
+        $a = new BSONData((object)[
             '_id' => '5c49d90ffbab771ca667abe1',
             'x'   => 'foo',
             'y'   => [
                 'ref_id' => '5c49d90ffbab771ca667abe2'
             ]
         ]);
+
         $this->assertEquals([
             '_id' => new ObjectId('5c49d90ffbab771ca667abe1'),
             'x'   => 'foo',
@@ -56,10 +60,10 @@ class BSONTest extends TestCase
 
     public function testSerializeWithDateTime()
     {
-        $a = new BSON((object)[
+        $a = new BSONData((object)[
             '_id' => '5c49d90ffbab771ca667abe1',
             'x'   => 'foo',
-            'y'   => new \DateTime('2022-01-06 12:44:56')
+            'y'   => new DateTime('2022-01-06 12:44:56')
         ]);
 
         $this->assertEquals([
@@ -71,11 +75,11 @@ class BSONTest extends TestCase
 
     public function testSerializeWithNestedDateTime()
     {
-        $a = new BSON((object)[
+        $a = new BSONData((object)[
             '_id' => '5c49d90ffbab771ca667abe1',
             'x'   => 'foo',
             'y'   => [
-                'a' => new \DateTime('2022-01-06 12:44:56')
+                'a' => new DateTime('2022-01-06 12:44:56')
             ]
         ]);
 
@@ -98,7 +102,7 @@ class BSONTest extends TestCase
             ],
         ];
 
-        $a = new BSON();
+        $a = new BSONData();
         $a->bsonUnserialize($data);
 
         $this->assertEquals([
@@ -120,15 +124,30 @@ class BSONTest extends TestCase
             ],
         ];
 
-        $a = new BSON();
+        $a = new BSONData();
         $a->bsonUnserialize($data);
 
         $this->assertEquals([
             '_id' => '5c49d90ffbab771ca667abe1',
             'x'   => 'foo',
             'y'   => [
-                'dt' => new \DateTime('2022-01-06 12:44:56')
+                'dt' => new DateTime('2022-01-06 12:44:56')
             ],
         ], $a->get());
+    }
+}
+
+class BSONData extends Map implements Persistable
+{
+    use BSON;
+
+    public function bsonSerialize()
+    {
+        return $this->_bsonSerialize($this->_data);
+    }
+
+    public function bsonUnserialize(array $data)
+    {
+        $this->_data = $this->_bsonUnserialize($data);
     }
 }

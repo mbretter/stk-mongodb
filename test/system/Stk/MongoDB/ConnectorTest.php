@@ -62,6 +62,43 @@ class ConnectorTest extends TestCase
         $this->assertEquals(1, $result->getDeletedCount());
     }
 
+    public function testSaveWithInsert()
+    {
+        $conn = new Connector($this->database, 'test1');
+        $data = new PersistableObject((object)['a' => 1234, 'b' => 876]);
+
+        $saved = $conn->save($data);
+
+        $this->assertInstanceOf(PersistableObject::class, $saved);
+        $this->assertIsString($saved->get('_id'));
+        $this->assertNotSame($data, $saved);
+    }
+
+    public function testSaveWithUpdate()
+    {
+        $conn = new Connector($this->database, 'test1');
+        $data = new PersistableObject((object)['a' => 1234, 'b' => 876]);
+
+        $inserted = $conn->save($data);
+
+        $row = $conn->findOne((string)$inserted->get('_id'));
+
+        $this->assertInstanceOf(PersistableObject::class, $row);
+
+        $modified = $row->set('c', 1234)->set('a', 'foo');
+        $saved    = $conn->save($modified);
+
+        $this->assertSame($modified, $saved);
+
+        $row = $conn->findOne((string)$inserted->get('_id'));
+
+        $this->assertInstanceOf(PersistableObject::class, $row);
+
+        $this->assertEquals('foo', $row->get('a'));
+        $this->assertEquals(876, $row->get('b'));
+        $this->assertEquals(1234, $row->get('c'));
+    }
+
     public function testDateTime()
     {
         $dateTime = new DateTime('@' . time()); // avoid usecs, which is not supported by mongodb
@@ -82,8 +119,8 @@ class ConnectorTest extends TestCase
 
     public function testId()
     {
-        $conn     = new Connector($this->database, 'test1');
-        $data     = new PersistableObject();
+        $conn = new Connector($this->database, 'test1');
+        $data = new PersistableObject();
 
         $result = $conn->insert($data);
 

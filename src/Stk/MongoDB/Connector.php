@@ -75,22 +75,34 @@ class Connector implements Injectable
         return new ObjectId($id);
     }
 
+    /**
+     * makes an update if the _id field is set, otherwise an insert is made
+     * returns the immutable, after an insert the _id is set into the immutable
+     * and a new clone is returned.
+     *
+     * @param ImmutableInterface $row
+     * @param array $fields
+     * @param array $options
+     *
+     * @return ImmutableInterface
+     */
     public function save(ImmutableInterface $row, $fields = [], $options = [])
     {
         if ($row->get('_id')) {
-            return $this->update($row, $fields, $options);
+            $this->update($row, $fields, $options);
+
+            return $row;
         } else {
-            return $this->insert($row, $options);
+            $insertResult = $this->insert($row, $options);
+            if ($insertResult->getInsertedId() instanceof ObjectId) {
+                return $row->set('_id', (string)$insertResult->getInsertedId());
+            }
         }
     }
 
     public function insert(ImmutableInterface $row, $options = [])
     {
         $this->debug(__METHOD__ . ":" . print_r($row, true));
-
-        if (!$row->get('_id')) {
-            $row->set('_id', $this->newId());
-        }
 
         return $this->_collection->insertOne($row, $options);
     }
@@ -176,7 +188,7 @@ class Connector implements Injectable
         return $this->_collection->deleteOne(['_id' => new ObjectId($id)]);
     }
 
-    public function _remove($query = [], $options = [])
+    public function deleteMany($query = [], $options = [])
     {
         return $this->_collection->deleteMany($query, $options);
     }

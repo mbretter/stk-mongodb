@@ -4,7 +4,7 @@
   "description": "Stk Mongodb",
   "keywords": ["stk","mongodb"],
   "homepage": "https://www.bretterklieber.com",
-  "license": "BSD",
+  "license": "MIT",
   "require": {
     "ext-mongodb": "^1.5",
     "mongodb/mongodb": "^1.4",

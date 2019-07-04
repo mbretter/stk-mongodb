@@ -67,7 +67,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mbretter/stk-immutable.git",
-                "reference": "6cc378d9f7b96b944e3cecd623826f04cdf5874e"
+                "reference": "87e28737c4416f864429d3a84a1094fea8c08b4a"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.14",
@@ -110,7 +110,7 @@
                 "immutable",
                 "stk"
             ],
-            "time": "2019-05-29T10:50:09+00:00"
+            "time": "2019-07-04T06:33:11+00:00"
         },
         {
             "name": "mongodb/mongodb",

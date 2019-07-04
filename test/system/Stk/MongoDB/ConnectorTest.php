@@ -6,7 +6,7 @@ use DateTime;
 use MongoDB\Client;
 use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
-use Stk\Immutable\Util\Mutations;
+use Stk\Immutable\Ops\Diff;
 use Stk\MongoDB\Connector;
 
 /*
@@ -51,7 +51,7 @@ class ConnectorTest extends TestCase
 
         $new = $row->set('name', 'alice');
 
-        $modified = (new Mutations($row, $new))->getModified();
+        $modified = (new Diff)($row, $new);
         $modified = $modified->set('_id', $row->get('_id'));
 
         $result = $conn->update($modified);

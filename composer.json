@@ -9,7 +9,7 @@
     "ext-mongodb": "^1.5",
     "mongodb/mongodb": "^1.4",
     "mbretter/stk-immutable": "dev-master",
-    "mbretter/stk-di": "dev-master",
+    "mbretter/stk-di": "^1.0",
     "psr/log": "^1.1"
   },
   "require-dev": {
@@ -38,10 +38,6 @@
     {
       "type": "git",
       "url": "https://github.com/mbretter/stk-immutable.git"
-    },
-    {
-      "type": "git",
-      "url": "https://github.com/mbretter/stk-di.git"
     }
   ]
 }

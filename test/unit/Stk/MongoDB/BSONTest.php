@@ -14,11 +14,6 @@ use Stk\Immutable\Serialize\BSON;
 class BSONTest extends TestCase
 {
 
-    public function setUp()
-    {
-
-    }
-
     public function testSerializeWithId()
     {
         $a = new BSONData((object)['_id' => '5c49d90ffbab771ca667abe1', 'x' => 'foo', 'y' => 'bar']);

@@ -22,7 +22,7 @@ class ConnectorTest extends TestCase
     /** @var Database */
     protected $database;
 
-    public function setUp()
+    protected function setUp(): void
     {
 //        $mc = new Client(
 //            'mongodb://stk-testing:1qay2wsx@127.0.0.1/stk-tests',
@@ -132,7 +132,7 @@ class ConnectorTest extends TestCase
         $this->assertIsString($row->get('_id'));
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->database->drop();
     }

@@ -154,7 +154,7 @@ class Connector implements Injectable
             $setfields = ['$set' => $values];
         }
 
-        $fields = array_merge($setfields, $fields);
+        $fields = array_merge_recursive($setfields, $fields);
 
         if (!count($fields)) {
             $this->debug(__METHOD__ . ':nothing to update');

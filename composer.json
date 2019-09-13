@@ -4,12 +4,12 @@
   "description": "Stk Mongodb",
   "keywords": ["stk","mongodb"],
   "homepage": "https://www.bretterklieber.com",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "require": {
     "ext-mongodb": "^1.5",
     "mongodb/mongodb": "^1.4",
     "mbretter/stk-immutable": "dev-master",
-    "mbretter/stk-di": "^1.0",
+    "mbretter/stk-di": "^1.1.0",
     "psr/log": "^1.1"
   },
   "require-dev": {

@@ -7,9 +7,11 @@ use IteratorIterator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\UTCDatetime;
+use MongoDB\DeleteResult;
 use MongoDB\Driver\Cursor;
 use MongoDB\GridFS\Bucket;
 use MongoDB\InsertManyResult;
+use MongoDB\InsertOneResult;
 use MongoDB\Operation\FindOneAndUpdate;
 use MongoDB\Database;
 use MongoDB\Collection;
@@ -66,6 +68,12 @@ class Connector implements Injectable
         return $this->_collection;
     }
 
+    /**
+     * generate either a new ObjectId or make an ObjectId from string
+     * @param null $id
+     *
+     * @return ObjectId
+     */
     public function newId($id = null)
     {
         if ($id === null) {
@@ -90,16 +98,23 @@ class Connector implements Injectable
     {
         if ($row->get('_id')) {
             $this->update($row, $fields, $options);
-
-            return $row;
         } else {
             $insertResult = $this->insert($row, $options);
             if ($insertResult->getInsertedId() instanceof ObjectId) {
                 return $row->set('_id', (string)$insertResult->getInsertedId());
             }
         }
+
+        return $row;
     }
 
+    /**
+     * insertOne Immutable
+     * @param ImmutableInterface $row
+     * @param array $options
+     *
+     * @return InsertOneResult
+     */
     public function insert(ImmutableInterface $row, $options = [])
     {
         $this->debug(__METHOD__ . ":" . print_r($row, true));
@@ -108,6 +123,7 @@ class Connector implements Injectable
     }
 
     /**
+     * pass through to collections insertMany
      * @param ImmutableInterface[] $rows
      * @param array $options
      *
@@ -133,7 +149,8 @@ class Connector implements Injectable
     {
         $values = [];
         $row->walk(function ($path, $value) use (&$values) {
-            if ($path[0] == '_id') {
+            $key = is_array($path) ? implode('.', $path) : $path;
+            if ($key == '_id') {
                 return;
             }
 
@@ -141,7 +158,7 @@ class Connector implements Injectable
                 $value = new UTCDatetime($value);
             }
 
-            $values[implode('.', $path)] = $value;
+            $values[$key] = $value;
         });
 
         if (isset($options['upsert'])) {
@@ -154,7 +171,7 @@ class Connector implements Injectable
             $setfields = ['$set' => $values];
         }
 
-        $fields = array_merge_recursive($setfields, $fields);
+        $fields = array_replace_recursive($fields, $setfields);
 
         if (!count($fields)) {
             $this->debug(__METHOD__ . ':nothing to update');
@@ -171,16 +188,37 @@ class Connector implements Injectable
         return $this->_collection->updateOne($criteria, $fields, $options);
     }
 
+    /**
+     * pass through to collections updateMany
+     * @param array $query
+     * @param array $fields
+     * @param array $options
+     *
+     * @return UpdateResult
+     */
     public function updateMany($query = [], $fields = [], $options = [])
     {
         return $this->_collection->updateMany($query, $fields, $options);
     }
 
+    /**
+     * delete a row, the row must provide an _id attribute as string
+     * @param ImmutableInterface $row
+     *
+     * @return DeleteResult
+     */
     public function delete(ImmutableInterface $row)
     {
         return $this->deleteById($row->get('_id'));
     }
 
+    /**
+     * delete a document by id
+     *
+     * @param string $id
+     *
+     * @return DeleteResult
+     */
     public function deleteById($id)
     {
         $this->debug(__METHOD__ . ":$id");
@@ -188,12 +226,20 @@ class Connector implements Injectable
         return $this->_collection->deleteOne(['_id' => new ObjectId($id)]);
     }
 
+    /**
+     * pass through to collections deleteMany
+     * @param array $query
+     * @param array $options
+     *
+     * @return DeleteResult
+     */
     public function deleteMany($query = [], $options = [])
     {
         return $this->_collection->deleteMany($query, $options);
     }
 
     /**
+     * a pass through to update, by implicitely setting the upsert options
      * @param array $criteria
      * @param ImmutableInterface $row
      * @param array $fields
@@ -211,6 +257,7 @@ class Connector implements Injectable
     /**
      * IterartorIterator can be traversed using fetch(), usable when migrating from the legacy mongodb driver
      * may also be used, if traversing the result set more then once
+     * implicitely transform _id string to ObjectId
      *
      * @param array $query
      * @param array $options
@@ -250,24 +297,6 @@ class Connector implements Injectable
     }
 
     /**
-     * returns a traversable cursor result can be directly used with foreach
-     * cursor can only traversed once
-     *
-     * @param array $query
-     * @param array $options
-     *
-     * @return Cursor|ImmutableInterface[]
-     */
-    public function query($query = [], $options = [])
-    {
-        if (array_key_exists('_id', $query) && is_string($query['_id'])) {
-            $query['_id'] = new ObjectId($query['_id']);
-        }
-
-        return $this->_collection->find($query, $options);
-    }
-
-    /**
      * @param array $query
      * @param array $fields
      *
@@ -283,6 +312,24 @@ class Connector implements Injectable
         $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query, true));
 
         return $this->_collection->findOne($query, $fields);
+    }
+
+    /**
+     * returns a traversable cursor result can be directly used with foreach
+     * cursor can only traversed once
+     *
+     * @param array $query
+     * @param array $options
+     *
+     * @return Cursor|ImmutableInterface[]
+     */
+    public function query($query = [], $options = [])
+    {
+        if (array_key_exists('_id', $query) && is_string($query['_id'])) {
+            $query['_id'] = new ObjectId($query['_id']);
+        }
+
+        return $this->_collection->find($query, $options);
     }
 
     /**

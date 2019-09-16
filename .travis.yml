@@ -3,7 +3,10 @@ language: php
 php:
   - 7.2
   - 7.3
-  
+
+before_install:
+  - echo 'extension = mongodb.so' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
 install:
   # Install composer packages
   - travis_retry composer install --no-interaction --no-suggest
@@ -12,9 +15,7 @@ install:
   - chmod +x coveralls.phar
   - php coveralls.phar --version
   
-# Create a storage folder for coverage report
 before_script:
-  - echo 'extension = mongodb.so' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - mkdir -p build/logs
   - ls -al
   - phpunit --version

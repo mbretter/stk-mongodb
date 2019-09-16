@@ -6,6 +6,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use DateTime;
 use DateTimeZone;
+use stdClass;
 
 /**
  * BSON serialization and vice versa
@@ -17,7 +18,7 @@ trait BSON
 {
     private function _bsonSerialize($data)
     {
-        if (is_object($data) && $data instanceof \stdClass) {
+        if (is_object($data) && $data instanceof stdClass) {
             $ovs = get_object_vars($data);
 
             // keep empty stdClasses

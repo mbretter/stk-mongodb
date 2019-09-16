@@ -7,6 +7,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Persistable;
 use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Stk\Immutable\Map;
 use Stk\Immutable\Serialize\BSON;
 
@@ -84,6 +85,25 @@ class BSONTest extends TestCase
             'y'   => [
                 'a' => new UTCDateTime('1641473096000')
             ]
+        ], $a->bsonSerialize());
+    }
+
+    public function testSerializeWithEmptyStdClass()
+    {
+        $a = new BSONData((object)[
+            '_id' => '5c49d90ffbab771ca667abe1',
+            'x'   => 'foo',
+            'y'   => [
+                'ref_id' => new stdClass()
+            ]
+        ]);
+
+        $this->assertEquals([
+            '_id' => new ObjectId('5c49d90ffbab771ca667abe1'),
+            'x'   => 'foo',
+            'y'   => [
+                'ref_id' => new stdClass()
+            ],
         ], $a->bsonSerialize());
     }
 

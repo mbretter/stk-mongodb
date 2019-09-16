@@ -1,11 +1,16 @@
 {
   "name": "mbretter/stk-mongodb",
   "type": "library",
-  "description": "Stk Mongodb",
-  "keywords": ["stk","mongodb"],
+  "description": "MongoDB database access using immutables",
+  "keywords": [
+    "stk",
+    "mongodb",
+    "immutable"
+  ],
   "homepage": "https://www.bretterklieber.com",
   "license": "BSD-3-Clause",
   "require": {
+    "php": "^7.2",
     "ext-mongodb": "^1.5",
     "mongodb/mongodb": "^1.4",
     "mbretter/stk-immutable": "dev-master",

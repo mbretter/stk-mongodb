@@ -32,7 +32,6 @@ trait BSON
         if (is_array($data)) {
             return array_map([$this, '_bsonSerialize'], $data);
         } else {
-
             if ($data instanceof DateTime) {
                 $data = new UTCDatetime($data);
             }
@@ -46,7 +45,7 @@ trait BSON
         array_walk_recursive($data, function (&$v, $k) {
             if ($v instanceof UTCDateTime) {
                 $v = $v->toDateTime()->setTimezone(new DateTimeZone(date_default_timezone_get()));
-            } else if ($v instanceof ObjectID) {
+            } elseif ($v instanceof ObjectID) {
                 $v = (string)$v;
             }
         });

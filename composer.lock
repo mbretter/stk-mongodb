@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "29b903de0c4ba21d3d95c6901acb4948",
+    "content-hash": "afdfdd92af37b7d4517840d232f481a7",
     "packages": [
         {
             "name": "mbretter/stk-di",
@@ -49,18 +49,25 @@
         },
         {
             "name": "mbretter/stk-immutable",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mbretter/stk-immutable.git",
-                "reference": "d5ee326c841fea2cc74b017d941f4d7d8081cd0c"
+                "reference": "9e8446f48f15d25e04849b39c4c8b00b353a47be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mbretter/stk-immutable/zipball/9e8446f48f15d25e04849b39c4c8b00b353a47be",
+                "reference": "9e8446f48f15d25e04849b39c4c8b00b353a47be",
+                "shasum": ""
             },
             "require": {
-                "ext-json": "*"
+                "ext-json": "*",
+                "php": "^7.2"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.14",
-                "phpunit/phpunit": "^7.5"
+                "phpunit/phpunit": "^8"
             },
             "type": "library",
             "autoload": {
@@ -68,28 +75,7 @@
                     "Stk\\": "src/Stk"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "StkTest\\": "test/unit/Stk"
-                }
-            },
-            "scripts": {
-                "test-unit": [
-                    "phpunit -v --testsuite=\"unit tests\" --testdox --bootstrap test/unit/bootstrap.php"
-                ],
-                "test-reports": [
-                    "phpunit --testsuite=\"unit tests\" --bootstrap test/unit/bootstrap.php --coverage-html reports/coverage --coverage-clover reports/clover.xml --coverage-crap4j reports/crap4j.xml --log-junit reports/junit.xml"
-                ],
-                "cs-check": [
-                    "php-cs-fixer fix -v --dry-run --using-cache=no src"
-                ],
-                "cs-fix": [
-                    "php-cs-fixer fix -v --using-cache=no src"
-                ],
-                "check-migration-71": [
-                    "php-cs-fixer fix -v --dry-run --using-cache=no src --rules=@PHP71Migration --allow-risky=yes"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -99,7 +85,7 @@
                 "immutable",
                 "stk"
             ],
-            "time": "2019-09-15T17:28:36+00:00"
+            "time": "2019-09-16T13:20:36+00:00"
         },
         {
             "name": "mongodb/mongodb",
@@ -2944,12 +2930,11 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "mbretter/stk-immutable": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
+        "php": "^7.2",
         "ext-mongodb": "^1.5"
     },
     "platform-dev": []

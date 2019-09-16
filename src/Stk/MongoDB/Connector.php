@@ -396,7 +396,5 @@ class Connector implements Injectable
         if ($this->logger) {
             $this->logger->debug($message, $context);
         }
-
     }
 }
-

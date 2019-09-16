@@ -21,7 +21,7 @@ before_script:
   - phpunit --version
 
 script:
-  - phpunit --bootstrap test/unit/bootstrap.php --coverage-clover build/logs/clover.xml
+  - phpunit --bootstrap test/unit/bootstrap.php --testsuite="unit tests" --coverage-clover build/logs/clover.xml
 
 after_success:
 # Submit coverage report to Coveralls servers, see .coveralls.yml

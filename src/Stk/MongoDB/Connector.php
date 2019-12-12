@@ -189,7 +189,7 @@ class Connector implements Injectable
     }
 
     /**
-     * pass through to collections updateMany
+     * pass through of updateMany method
      * @param array $query
      * @param array $fields
      * @param array $options
@@ -199,6 +199,19 @@ class Connector implements Injectable
     public function updateMany($query = [], $fields = [], $options = [])
     {
         return $this->_collection->updateMany($query, $fields, $options);
+    }
+
+    /**
+     * pass through of updateOne method
+     * @param array $query
+     * @param array $fields
+     * @param array $options
+     *
+     * @return UpdateResult
+     */
+    public function updateOne($query = [], $fields = [], $options = [])
+    {
+        return $this->_collection->updateOne($query, $fields, $options);
     }
 
     /**

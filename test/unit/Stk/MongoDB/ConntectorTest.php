@@ -314,6 +314,25 @@ class ConntectorTest extends TestCase
         $this->connector->updateMany($criteria, $fields, []);
     }
 
+    public function testUpdateOne()
+    {
+        $criteria = [
+            'foo2' => 'bar-foo'
+        ];
+        $fields   = [
+            '$set' => [
+                'foo' => 'bar'
+            ]
+        ];
+
+        $this->collection->expects($this->once())->method('updateOne')->with(
+            $criteria,
+            $fields,
+            []
+        );
+        $this->connector->updateOne($criteria, $fields, []);
+    }
+
     // insert
 
     public function testInsert()

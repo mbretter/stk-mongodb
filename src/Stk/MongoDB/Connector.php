@@ -70,6 +70,7 @@ class Connector implements Injectable
 
     /**
      * generate either a new ObjectId or make an ObjectId from string
+     *
      * @param null $id
      *
      * @return ObjectId
@@ -110,6 +111,7 @@ class Connector implements Injectable
 
     /**
      * insertOne Immutable
+     *
      * @param ImmutableInterface $row
      * @param array $options
      *
@@ -124,6 +126,7 @@ class Connector implements Injectable
 
     /**
      * pass through to collections insertMany
+     *
      * @param ImmutableInterface[] $rows
      * @param array $options
      *
@@ -183,16 +186,20 @@ class Connector implements Injectable
      * useful for updateing only parts of a document, without overwriting the whole document
      *
      * @param ImmutableInterface $row
+     * @param string $prefix
      *
      * @return array
      */
-    public function buildValueSet(ImmutableInterface $row)
+    public function buildValueSet(ImmutableInterface $row, $prefix = '')
     {
         $values = [];
-        $row->walk(function ($path, $value) use (&$values) {
+        $row->walk(function ($path, $value) use (&$values, $prefix) {
             $key = is_array($path) ? implode('.', $path) : $path;
             if ($key == '_id') {
                 return;
+            }
+            if (strlen($prefix)) {
+                $key = sprintf('%s.%s', $prefix, $key);
             }
 
             if ($value instanceof DateTime) {
@@ -207,6 +214,7 @@ class Connector implements Injectable
 
     /**
      * pass through of updateMany method
+     *
      * @param array $query
      * @param array $fields
      * @param array $options
@@ -220,6 +228,7 @@ class Connector implements Injectable
 
     /**
      * pass through of updateOne method
+     *
      * @param array $query
      * @param array $fields
      * @param array $options
@@ -233,6 +242,7 @@ class Connector implements Injectable
 
     /**
      * delete a row, the row must provide an _id attribute as string
+     *
      * @param ImmutableInterface $row
      *
      * @return DeleteResult
@@ -258,6 +268,7 @@ class Connector implements Injectable
 
     /**
      * pass through to collections deleteMany
+     *
      * @param array $query
      * @param array $options
      *
@@ -270,6 +281,7 @@ class Connector implements Injectable
 
     /**
      * a pass through to update, by implicitely setting the upsert options
+     *
      * @param array $criteria
      * @param ImmutableInterface $row
      * @param array $fields

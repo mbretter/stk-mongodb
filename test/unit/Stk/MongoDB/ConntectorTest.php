@@ -58,8 +58,8 @@ class ConntectorTest extends TestCase
 
     public function testNewIdWithString()
     {
-        $oid = new ObjectId();
-        $objectId = $this->connector->newId((string) $oid);
+        $oid      = new ObjectId();
+        $objectId = $this->connector->newId((string)$oid);
         $this->assertEquals($oid, $objectId);
     }
 
@@ -331,6 +331,20 @@ class ConntectorTest extends TestCase
             []
         );
         $this->connector->updateOne($criteria, $fields, []);
+    }
+
+    public function testBuildValueSetWithPrefix()
+    {
+        $oid = new ObjectId();
+        $row = new Record([
+            '_id' => $oid,
+            'foo' => 'bar'
+        ]);
+
+        $set = $this->connector->buildValueSet($row, 'articles.$');
+        $this->assertEquals([
+            'articles.$.foo' => 'bar',
+        ], $set);
     }
 
     // insert

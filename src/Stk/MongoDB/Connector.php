@@ -147,19 +147,7 @@ class Connector implements Injectable
      */
     public function update(ImmutableInterface $row, $fields = [], $options = [], $criteria = null)
     {
-        $values = [];
-        $row->walk(function ($path, $value) use (&$values) {
-            $key = is_array($path) ? implode('.', $path) : $path;
-            if ($key == '_id') {
-                return;
-            }
-
-            if ($value instanceof DateTime) {
-                $value = new UTCDatetime($value);
-            }
-
-            $values[$key] = $value;
-        });
+        $values = $this->buildValueSet($row);
 
         if (isset($options['upsert'])) {
             // manually set __pclass, otherwise __pclass will not be set with upserts
@@ -186,6 +174,35 @@ class Connector implements Injectable
         $this->debug(__METHOD__ . ':' . $this->_collection->getCollectionName() . ':' . print_r($criteria, true) . ':' . print_r($fields, true));
 
         return $this->_collection->updateOne($criteria, $fields, $options);
+    }
+
+    /**
+     * build an array of values, useable as parameter for $set
+     * exclude id field and convert Datetime to UTCDateTime
+     * only leaf nodes of the immutable are used, the corresponding path is converted into a dotted string
+     * useful for updateing only parts of a document, without overwriting the whole document
+     *
+     * @param ImmutableInterface $row
+     *
+     * @return array
+     */
+    public function buildValueSet(ImmutableInterface $row)
+    {
+        $values = [];
+        $row->walk(function ($path, $value) use (&$values) {
+            $key = is_array($path) ? implode('.', $path) : $path;
+            if ($key == '_id') {
+                return;
+            }
+
+            if ($value instanceof DateTime) {
+                $value = new UTCDatetime($value);
+            }
+
+            $values[$key] = $value;
+        });
+
+        return $values;
     }
 
     /**

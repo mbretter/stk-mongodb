@@ -414,7 +414,7 @@ class Connector implements Injectable
             'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
         ]);
 
-        return $ret->seq;
+        return (int) $ret->seq;
     }
 
     /**

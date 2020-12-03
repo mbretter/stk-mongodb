@@ -70,12 +70,25 @@ class Connector implements Injectable
 
     /**
      * generate either a new ObjectId or make an ObjectId from string
-     *
+     * use the static version instead
      * @param null $id
-     *
      * @return ObjectId
+     * @deprecated
      */
     public function newId($id = null)
+    {
+        if ($id === null) {
+            return new ObjectId();
+        }
+
+        return new ObjectId($id);
+    }
+
+    /**
+     * @param string|null $id
+     * @return ObjectId
+     */
+    public static function oId(string $id = null): ObjectId
     {
         if ($id === null) {
             return new ObjectId();
@@ -102,7 +115,7 @@ class Connector implements Injectable
         } else {
             $insertResult = $this->insert($row, $options);
             if ($insertResult->getInsertedId() instanceof ObjectId) {
-                return $row->set('_id', (string)$insertResult->getInsertedId());
+                return $row->set('_id', (string) $insertResult->getInsertedId());
             }
         }
 
@@ -174,7 +187,8 @@ class Connector implements Injectable
             $criteria = ['_id' => new ObjectId($row->get('_id'))];
         }
 
-        $this->debug(__METHOD__ . ':' . $this->_collection->getCollectionName() . ':' . print_r($criteria, true) . ':' . print_r($fields, true));
+        $this->debug(__METHOD__ . ':' . $this->_collection->getCollectionName() . ':' . print_r($criteria,
+                true) . ':' . print_r($fields, true));
 
         return $this->_collection->updateOne($criteria, $fields, $options);
     }
@@ -312,7 +326,8 @@ class Connector implements Injectable
             $query['_id'] = new ObjectId($query['_id']);
         }
 
-        $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query, true) . ' options:' . print_r($options, true));
+        $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query,
+                true) . ' options:' . print_r($options, true));
 
         $cursor = $this->_collection->find($query, $options);
         $it     = new IteratorIterator($cursor);

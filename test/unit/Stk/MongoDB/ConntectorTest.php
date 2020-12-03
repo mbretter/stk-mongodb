@@ -59,7 +59,20 @@ class ConntectorTest extends TestCase
     public function testNewIdWithString()
     {
         $oid      = new ObjectId();
-        $objectId = $this->connector->newId((string)$oid);
+        $objectId = $this->connector->newId((string) $oid);
+        $this->assertEquals($oid, $objectId);
+    }
+
+    public function testOId()
+    {
+        $objectId = Connector::oId();
+        $this->assertInstanceOf(ObjectId::class, $objectId);
+    }
+
+    public function testOIdWithString()
+    {
+        $oid      = new ObjectId();
+        $objectId = Connector::oId((string) $oid);
         $this->assertEquals($oid, $objectId);
     }
 
@@ -98,7 +111,7 @@ class ConntectorTest extends TestCase
         $this->collection->method('insertOne')->willReturn($this->insertOneResult);
         $row      = new Record();
         $savedRow = $this->connector->save($row);
-        $this->assertEquals((string)$newOid, $savedRow->get('_id'));
+        $this->assertEquals((string) $newOid, $savedRow->get('_id'));
     }
 
     public function testSaveExistingRow()
@@ -108,7 +121,7 @@ class ConntectorTest extends TestCase
             '_id' => $oid
         ]);
         $savedRow = $this->connector->save($row);
-        $this->assertEquals((string)$oid, $savedRow->get('_id'));
+        $this->assertEquals((string) $oid, $savedRow->get('_id'));
     }
 
     // update
@@ -395,7 +408,7 @@ class ConntectorTest extends TestCase
         $oid = new ObjectId();
 
         $this->collection->expects($this->once())->method('deleteOne')->with(['_id' => $oid]);
-        $this->connector->deleteById((string)$oid);
+        $this->connector->deleteById((string) $oid);
     }
 
     public function testDeleteMany()
@@ -428,7 +441,7 @@ class ConntectorTest extends TestCase
         $cursor = $this->createMock(Traversable::class);
         $this->collection->expects($this->once())->method('find')->with(['_id' => $oid], [])->willReturn($cursor);
 
-        $ret = $this->connector->find(['_id' => (string)$oid]);
+        $ret = $this->connector->find(['_id' => (string) $oid]);
         $this->assertInstanceOf(IteratorIterator::class, $ret);
     }
 
@@ -461,7 +474,7 @@ class ConntectorTest extends TestCase
         $row = new Record(['_id' => $oid]);
         $this->collection->expects($this->once())->method('findOne')->with(['_id' => $oid], [])->willReturn($row);
 
-        $ret = $this->connector->findOne((string)$oid);
+        $ret = $this->connector->findOne((string) $oid);
         $this->assertSame($row, $ret);
     }
 
@@ -492,7 +505,7 @@ class ConntectorTest extends TestCase
         $cursor = $this->createMock(Traversable::class);
         $this->collection->expects($this->once())->method('find')->with(['_id' => $oid], [])->willReturn($cursor);
 
-        $ret = $this->connector->query(['_id' => (string)$oid]);
+        $ret = $this->connector->query(['_id' => (string) $oid]);
         $this->assertInstanceOf(Traversable::class, $ret);
     }
 
@@ -546,7 +559,7 @@ class ConntectorTest extends TestCase
                 'upsert'         => true,
                 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
             ]
-        )->willReturn((object)['seq' => 1]);
+        )->willReturn((object) ['seq' => 1]);
 
         $ret = $this->connector->getNextSeq();
         $this->assertEquals(1, $ret);
@@ -564,7 +577,7 @@ class ConntectorTest extends TestCase
                 'upsert'         => true,
                 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
             ]
-        )->willReturn((object)['seq' => 1]);
+        )->willReturn((object) ['seq' => 1]);
 
         $ret = $this->connector->getNextSeq('mysequencename');
         $this->assertEquals(1, $ret);
@@ -582,7 +595,7 @@ class ConntectorTest extends TestCase
                 'upsert'         => true,
                 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
             ]
-        )->willReturn((object)['seq' => 1]);
+        )->willReturn((object) ['seq' => 1]);
 
         $ret = $this->connector->getNextSeq(null, 'mycollectionname');
         $this->assertEquals(1, $ret);

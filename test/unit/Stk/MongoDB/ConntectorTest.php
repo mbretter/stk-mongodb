@@ -11,8 +11,13 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Database;
+use MongoDB\DeleteResult;
+use MongoDB\Driver\WriteResult;
+use MongoDB\GridFS\Bucket;
+use MongoDB\InsertManyResult;
 use MongoDB\InsertOneResult;
 use MongoDB\Operation\FindOneAndUpdate;
+use MongoDB\UpdateResult;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -34,8 +39,7 @@ class ConntectorTest extends TestCase
     /** @var InsertOneResult|MockObject */
     protected $insertOneResult;
 
-    /** @var Connector */
-    protected $connector;
+    protected Connector $connector;
 
     protected function setUp(): void
     {
@@ -48,19 +52,6 @@ class ConntectorTest extends TestCase
         $this->insertOneResult = $this->createMock(InsertOneResult::class);
 
         $this->connector = new Connector($this->database, 'users');
-    }
-
-    public function testNewId()
-    {
-        $objectId = $this->connector->newId();
-        $this->assertInstanceOf(ObjectId::class, $objectId);
-    }
-
-    public function testNewIdWithString()
-    {
-        $oid      = new ObjectId();
-        $objectId = $this->connector->newId((string) $oid);
-        $this->assertEquals($oid, $objectId);
     }
 
     public function testOId()
@@ -319,11 +310,14 @@ class ConntectorTest extends TestCase
             ]
         ];
 
+        $result = $this->createMock(UpdateResult::class);
+
         $this->collection->expects($this->once())->method('updateMany')->with(
             $criteria,
             $fields,
             []
-        );
+        )->willReturn($result);
+
         $this->connector->updateMany($criteria, $fields, []);
     }
 
@@ -342,7 +336,7 @@ class ConntectorTest extends TestCase
             $criteria,
             $fields,
             []
-        );
+        )->willReturn($this->createMock(UpdateResult::class));
         $this->connector->updateOne($criteria, $fields, []);
     }
 
@@ -386,7 +380,10 @@ class ConntectorTest extends TestCase
             $row->set('_id', new ObjectId())
         ];
 
-        $this->collection->expects($this->once())->method('insertMany')->with($rows);
+        $this->collection->expects($this->once())
+            ->method('insertMany')
+            ->with($rows)
+            ->willReturn($this->createMock(InsertManyResult::class));
         $this->connector->insertMany($rows);
     }
 
@@ -399,7 +396,10 @@ class ConntectorTest extends TestCase
             '_id' => $oid
         ]);
 
-        $this->collection->expects($this->once())->method('deleteOne')->with(['_id' => $oid]);
+        $this->collection->expects($this->once())
+            ->method('deleteOne')
+            ->with(['_id' => $oid])
+            ->willReturn($this->createMock(DeleteResult::class));
         $this->connector->delete($row);
     }
 
@@ -407,7 +407,10 @@ class ConntectorTest extends TestCase
     {
         $oid = new ObjectId();
 
-        $this->collection->expects($this->once())->method('deleteOne')->with(['_id' => $oid]);
+        $this->collection->expects($this->once())
+            ->method('deleteOne')
+            ->with(['_id' => $oid])
+            ->willReturn($this->createMock(DeleteResult::class));
         $this->connector->deleteById((string) $oid);
     }
 
@@ -420,7 +423,7 @@ class ConntectorTest extends TestCase
         $this->collection->expects($this->once())->method('deleteMany')->with(
             $criteria,
             []
-        );
+        )->willReturn($this->createMock(DeleteResult::class));
         $this->connector->deleteMany($criteria, []);
     }
 
@@ -605,7 +608,9 @@ class ConntectorTest extends TestCase
 
     public function testGridFS()
     {
-        $this->database->expects($this->once())->method('selectGridFSBucket');
+        $this->database->expects($this->once())
+            ->method('selectGridFSBucket')
+            ->willReturn($this->createMock(Bucket::class));
         $this->connector->gridFs();
     }
 

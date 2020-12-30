@@ -24,11 +24,9 @@ class Connector implements Injectable
 {
     use LoggerAwareTrait;
 
-    /** @var  Database */
-    protected $_database;
+    protected Database $_database;
 
-    /** @var  Collection */
-    protected $_collection;
+    protected ?Collection $_collection;
 
     /**
      *
@@ -48,22 +46,19 @@ class Connector implements Injectable
         $this->_collection = $mongodb->selectCollection($coll);
     }
 
-    public function getDatabase()
+    public function getDatabase(): Database
     {
         return $this->_database;
     }
 
-    public function setCollection($collection)
+    public function setCollection(string $collection): Connector
     {
         $this->_collection = $this->_database->selectCollection($collection);
 
         return $this;
     }
 
-    /**
-     * @return  Collection
-     */
-    public function getCollection()
+    public function getCollection(): Collection
     {
         return $this->_collection;
     }
@@ -75,7 +70,7 @@ class Connector implements Injectable
      * @return ObjectId
      * @deprecated
      */
-    public function newId($id = null)
+    public function newId($id = null): ObjectId
     {
         if ($id === null) {
             return new ObjectId();
@@ -145,23 +140,14 @@ class Connector implements Injectable
      *
      * @return InsertManyResult
      */
-    public function insertMany($rows, $options = [])
+    public function insertMany(array $rows, $options = []): InsertManyResult
     {
         $this->debug(__METHOD__ . ":" . print_r($rows, true));
 
         return $this->_collection->insertMany($rows, $options);
     }
 
-    /**
-     * @param ImmutableInterface $row
-     * @param array $fields
-     * @param array $options
-     *
-     * @param null $criteria
-     *
-     * @return UpdateResult
-     */
-    public function update(ImmutableInterface $row, $fields = [], $options = [], $criteria = null)
+    public function update(ImmutableInterface $row, array $fields = [], array $options = [], array $criteria = null): ?UpdateResult
     {
         $values = $this->buildValueSet($row);
 
@@ -204,7 +190,7 @@ class Connector implements Injectable
      *
      * @return array
      */
-    public function buildValueSet(ImmutableInterface $row, $prefix = '')
+    public function buildValueSet(ImmutableInterface $row, string $prefix = ''): array
     {
         $values = [];
         $row->walk(function ($path, $value) use (&$values, $prefix) {
@@ -235,7 +221,7 @@ class Connector implements Injectable
      *
      * @return UpdateResult
      */
-    public function updateMany($query = [], $fields = [], $options = [])
+    public function updateMany($query = [], $fields = [], $options = []): UpdateResult
     {
         return $this->_collection->updateMany($query, $fields, $options);
     }
@@ -249,7 +235,7 @@ class Connector implements Injectable
      *
      * @return UpdateResult
      */
-    public function updateOne($query = [], $fields = [], $options = [])
+    public function updateOne($query = [], $fields = [], $options = []): UpdateResult
     {
         return $this->_collection->updateOne($query, $fields, $options);
     }
@@ -261,7 +247,7 @@ class Connector implements Injectable
      *
      * @return DeleteResult
      */
-    public function delete(ImmutableInterface $row)
+    public function delete(ImmutableInterface $row): DeleteResult
     {
         return $this->deleteById($row->get('_id'));
     }
@@ -273,7 +259,7 @@ class Connector implements Injectable
      *
      * @return DeleteResult
      */
-    public function deleteById($id)
+    public function deleteById($id): DeleteResult
     {
         $this->debug(__METHOD__ . ":$id");
 
@@ -288,7 +274,7 @@ class Connector implements Injectable
      *
      * @return DeleteResult
      */
-    public function deleteMany($query = [], $options = [])
+    public function deleteMany($query = [], $options = []): DeleteResult
     {
         return $this->_collection->deleteMany($query, $options);
     }
@@ -303,7 +289,7 @@ class Connector implements Injectable
      *
      * @return UpdateResult
      */
-    public function upsert($criteria, ImmutableInterface $row, $fields = [], $options = [])
+    public function upsert($criteria, ImmutableInterface $row, $fields = [], $options = []): ?UpdateResult
     {
         $options['upsert'] = true;
 
@@ -320,7 +306,7 @@ class Connector implements Injectable
      *
      * @return IteratorIterator
      */
-    public function find($query = [], $options = [])
+    public function find($query = [], $options = []): IteratorIterator
     {
         if (array_key_exists('_id', $query) && is_string($query['_id'])) {
             $query['_id'] = new ObjectId($query['_id']);
@@ -341,7 +327,7 @@ class Connector implements Injectable
      *
      * @return null|ImmutableInterface
      */
-    public function fetch($cursor)
+    public function fetch($cursor): ?ImmutableInterface
     {
         $o = $cursor->current();
         if ($o === null) {
@@ -396,7 +382,7 @@ class Connector implements Injectable
      *
      * @return int
      */
-    public function count($query = [], $limit = 0, $skip = 0)
+    public function count($query = [], $limit = 0, $skip = 0): int
     {
         $options = [];
         if ($limit > 0) {
@@ -417,7 +403,7 @@ class Connector implements Injectable
      *
      * @return mixed
      */
-    public function getNextSeq($name = null, $seqCollection = 'sequence')
+    public function getNextSeq($name = null, $seqCollection = 'sequence'): int
     {
         if ($name === null) {
             $name = $this->_collection->getCollectionName();
@@ -435,7 +421,7 @@ class Connector implements Injectable
     /**
      * @return Bucket
      */
-    public function gridFs()
+    public function gridFs(): Bucket
     {
         return $this->_database->selectGridFSBucket();
     }
@@ -448,7 +434,7 @@ class Connector implements Injectable
      *
      * @return void
      */
-    public function debug($message, array $context = [])
+    public function debug(string $message, array $context = [])
     {
         if ($this->logger) {
             $this->logger->debug($message, $context);

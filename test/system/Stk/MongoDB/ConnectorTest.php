@@ -19,18 +19,18 @@ use Stk\MongoDB\Connector;
 
 class ConnectorTest extends TestCase
 {
-    /** @var Database */
-    protected $database;
+    protected Database $database;
 
     protected function setUp(): void
     {
-//        $mc = new Client(
-//            'mongodb://stk-testing:1qay2wsx@127.0.0.1/stk-tests',
-//            ['typeMap' => ['root' => 'MongoDB\Model\BSONDocument', 'document' => 'object', 'array' => 'array']]);
-
         $mc = new Client('mongodb://stk-testing:1qay2wsx@127.0.0.1/stk-tests');
 
         $this->database = $mc->selectDatabase('stk-tests');
+    }
+
+    protected function tearDown(): void
+    {
+        $this->database->drop();
     }
 
     public function testCRUDSimple()
@@ -132,8 +132,4 @@ class ConnectorTest extends TestCase
         $this->assertIsString($row->get('_id'));
     }
 
-    protected function tearDown(): void
-    {
-        $this->database->drop();
-    }
 }

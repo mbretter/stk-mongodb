@@ -10,15 +10,16 @@
   "homepage": "https://www.bretterklieber.com",
   "license": "BSD-3-Clause",
   "require": {
-    "php": "^7.2",
-    "ext-mongodb": "^1.5",
-    "mongodb/mongodb": "^1.4",
+    "php": "^7.4",
+    "ext-mongodb": "^1.9",
+    "mongodb/mongodb": "^1.8.0",
     "mbretter/stk-immutable": "^1",
     "mbretter/stk-di": "^1",
-    "psr/log": "^1.1"
+    "psr/log": "^1.1",
+    "php-mock/php-mock-phpunit": "^2.6"
   },
   "require-dev": {
-    "phpunit/phpunit": "^8.2",
+    "phpunit/phpunit": "^9.5.0",
     "friendsofphp/php-cs-fixer": "^2.14"
   },
   "autoload-dev": {

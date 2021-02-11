@@ -341,7 +341,7 @@ class Connector implements Injectable
 
     /**
      * @param array $query
-     * @param array $fields
+     * @param array|string $fields
      *
      * @return array|object|null|ImmutableInterface
      */

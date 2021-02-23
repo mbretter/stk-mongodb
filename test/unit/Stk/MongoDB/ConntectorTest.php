@@ -12,7 +12,7 @@ use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Database;
 use MongoDB\DeleteResult;
-use MongoDB\Driver\WriteResult;
+use MongoDB\Driver\CursorInterface;
 use MongoDB\GridFS\Bucket;
 use MongoDB\InsertManyResult;
 use MongoDB\InsertOneResult;
@@ -70,7 +70,10 @@ class ConntectorTest extends TestCase
     public function testSetDatabase()
     {
         $database = $this->createMock(Database::class);
-        $database->expects($this->once())->method('selectCollection')->with('news');
+        $database->expects($this->once())
+            ->method('selectCollection')
+            ->with('news')
+            ->willReturn($this->collection);
         $this->collection->method('getCollectionName')->willReturn('news');
         $this->connector->setDatabase($database);
     }
@@ -83,7 +86,10 @@ class ConntectorTest extends TestCase
 
     public function testSetCollection()
     {
-        $this->database->expects($this->once())->method('selectCollection')->with('news');
+        $this->database->expects($this->once())
+            ->method('selectCollection')
+            ->with('news')
+            ->willReturn($this->collection);
         $this->connector->setCollection('news');
     }
 
@@ -364,7 +370,10 @@ class ConntectorTest extends TestCase
             'foo' => 'bar'
         ]);
 
-        $this->collection->expects($this->once())->method('insertOne')->with($row);
+        $this->collection->expects($this->once())
+            ->method('insertOne')
+            ->with($row)
+            ->willReturn($this->insertOneResult);
         $this->connector->insert($row);
     }
 
@@ -495,7 +504,7 @@ class ConntectorTest extends TestCase
 
     public function testQuery()
     {
-        $cursor = $this->createMock(Traversable::class);
+        $cursor = $this->createMock(CursorInterface::class);
         $this->collection->expects($this->once())->method('find')->with([], [])->willReturn($cursor);
 
         $ret = $this->connector->query();
@@ -505,7 +514,7 @@ class ConntectorTest extends TestCase
     public function testQueryWithQueryId()
     {
         $oid    = new ObjectId();
-        $cursor = $this->createMock(Traversable::class);
+        $cursor = $this->createMock(CursorInterface::class);
         $this->collection->expects($this->once())->method('find')->with(['_id' => $oid], [])->willReturn($cursor);
 
         $ret = $this->connector->query(['_id' => (string) $oid]);

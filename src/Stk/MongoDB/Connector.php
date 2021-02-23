@@ -8,7 +8,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\UTCDatetime;
 use MongoDB\DeleteResult;
-use MongoDB\Driver\Cursor;
+use MongoDB\Driver\CursorInterface;
 use MongoDB\GridFS\Bucket;
 use MongoDB\InsertManyResult;
 use MongoDB\InsertOneResult;
@@ -16,20 +16,21 @@ use MongoDB\Operation\FindOneAndUpdate;
 use MongoDB\Database;
 use MongoDB\Collection;
 use MongoDB\UpdateResult;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use stdClass;
 use Stk\Immutable\ImmutableInterface;
 use Stk\Service\Injectable;
 
+
 class Connector implements Injectable
 {
-    use LoggerAwareTrait;
+    protected ?LoggerInterface $logger = null;
 
     protected Database $_database;
 
-    protected ?Collection $_collection;
+    protected Collection $_collection;
 
     /**
-     *
      * @param Database $mongodb
      * @param string $collectionName
      */
@@ -39,7 +40,7 @@ class Connector implements Injectable
         $this->_collection = $mongodb->selectCollection($collectionName);
     }
 
-    public function setDatabase(Database $mongodb)
+    public function setDatabase(Database $mongodb): void
     {
         $coll              = $this->_collection->getCollectionName();
         $this->_database   = $mongodb;
@@ -63,14 +64,19 @@ class Connector implements Injectable
         return $this->_collection;
     }
 
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * generate either a new ObjectId or make an ObjectId from string
      * use the static version instead
-     * @param null $id
+     * @param ?string $id
      * @return ObjectId
      * @deprecated
      */
-    public function newId($id = null): ObjectId
+    public function newId(string $id = null): ObjectId
     {
         if ($id === null) {
             return new ObjectId();
@@ -85,11 +91,7 @@ class Connector implements Injectable
      */
     public static function oId(string $id = null): ObjectId
     {
-        if ($id === null) {
-            return new ObjectId();
-        }
-
-        return new ObjectId($id);
+        return oId($id);
     }
 
     /**
@@ -103,7 +105,7 @@ class Connector implements Injectable
      *
      * @return ImmutableInterface
      */
-    public function save(ImmutableInterface $row, $fields = [], $options = [])
+    public function save(ImmutableInterface $row, array $fields = [], array $options = []): ImmutableInterface
     {
         if ($row->get('_id')) {
             $this->update($row, $fields, $options);
@@ -125,7 +127,7 @@ class Connector implements Injectable
      *
      * @return InsertOneResult
      */
-    public function insert(ImmutableInterface $row, $options = [])
+    public function insert(ImmutableInterface $row, array $options = []): InsertOneResult
     {
         $this->debug(__METHOD__ . ":" . print_r($row, true));
 
@@ -140,15 +142,19 @@ class Connector implements Injectable
      *
      * @return InsertManyResult
      */
-    public function insertMany(array $rows, $options = []): InsertManyResult
+    public function insertMany(array $rows, array $options = []): InsertManyResult
     {
         $this->debug(__METHOD__ . ":" . print_r($rows, true));
 
         return $this->_collection->insertMany($rows, $options);
     }
 
-    public function update(ImmutableInterface $row, array $fields = [], array $options = [], array $criteria = null): ?UpdateResult
-    {
+    public function update(
+        ImmutableInterface $row,
+        array $fields = [],
+        array $options = [],
+        array $criteria = null
+    ): ?UpdateResult {
         $values = $this->buildValueSet($row);
 
         if (isset($options['upsert'])) {
@@ -221,7 +227,7 @@ class Connector implements Injectable
      *
      * @return UpdateResult
      */
-    public function updateMany($query = [], $fields = [], $options = []): UpdateResult
+    public function updateMany(array $query = [], array $fields = [], array $options = []): UpdateResult
     {
         return $this->_collection->updateMany($query, $fields, $options);
     }
@@ -235,7 +241,7 @@ class Connector implements Injectable
      *
      * @return UpdateResult
      */
-    public function updateOne($query = [], $fields = [], $options = []): UpdateResult
+    public function updateOne(array $query = [], array $fields = [], array $options = []): UpdateResult
     {
         return $this->_collection->updateOne($query, $fields, $options);
     }
@@ -259,7 +265,7 @@ class Connector implements Injectable
      *
      * @return DeleteResult
      */
-    public function deleteById($id): DeleteResult
+    public function deleteById(string $id): DeleteResult
     {
         $this->debug(__METHOD__ . ":$id");
 
@@ -274,7 +280,7 @@ class Connector implements Injectable
      *
      * @return DeleteResult
      */
-    public function deleteMany($query = [], $options = []): DeleteResult
+    public function deleteMany(array $query = [], array $options = []): DeleteResult
     {
         return $this->_collection->deleteMany($query, $options);
     }
@@ -289,7 +295,7 @@ class Connector implements Injectable
      *
      * @return UpdateResult
      */
-    public function upsert($criteria, ImmutableInterface $row, $fields = [], $options = []): ?UpdateResult
+    public function upsert(array $criteria, ImmutableInterface $row, $fields = [], $options = []): ?UpdateResult
     {
         $options['upsert'] = true;
 
@@ -323,15 +329,15 @@ class Connector implements Injectable
     }
 
     /**
-     * @param $cursor IteratorIterator
+     * @param IteratorIterator $cursor
      *
-     * @return null|ImmutableInterface
+     * @return ?ImmutableInterface
      */
-    public function fetch($cursor): ?ImmutableInterface
+    public function fetch(IteratorIterator $cursor): ?ImmutableInterface
     {
         $o = $cursor->current();
         if ($o === null) {
-            return $o;
+            return null;
         }
 
         $cursor->next();
@@ -364,9 +370,9 @@ class Connector implements Injectable
      * @param array $query
      * @param array $options
      *
-     * @return Cursor|ImmutableInterface[]
+     * @return CursorInterface
      */
-    public function query($query = [], $options = [])
+    public function query($query = [], $options = []): CursorInterface
     {
         if (array_key_exists('_id', $query) && is_string($query['_id'])) {
             $query['_id'] = new ObjectId($query['_id']);
@@ -398,12 +404,12 @@ class Connector implements Injectable
     /**
      * returns a sequence number
      *
-     * @param null $name the name of the sequence, defaults to the current selected collection name
+     * @param ?string $name the name of the sequence, defaults to the current selected collection name
      * @param string $seqCollection the collection holding the sequence values
      *
-     * @return mixed
+     * @return int
      */
-    public function getNextSeq($name = null, $seqCollection = 'sequence'): int
+    public function getNextSeq(string $name = null, string $seqCollection = 'sequence'): int
     {
         if ($name === null) {
             $name = $this->_collection->getCollectionName();
@@ -415,7 +421,16 @@ class Connector implements Injectable
             'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
         ]);
 
-        return (int) $ret->seq;
+        if ($ret === null) {
+            return 0;
+        }
+
+        if (is_array($ret)) {
+            return (int) $ret['seq'];
+        } else {
+            /** @var stdClass $ret */
+            return (int) $ret->seq;
+        }
     }
 
     /**
@@ -434,10 +449,23 @@ class Connector implements Injectable
      *
      * @return void
      */
-    public function debug(string $message, array $context = [])
+    public function debug(string $message, array $context = []): void
     {
         if ($this->logger) {
             $this->logger->debug($message, $context);
         }
     }
+}
+
+/**
+ * @param string|null $id
+ * @return ObjectId
+ */
+function oId(string $id = null): ObjectId
+{
+    if ($id === null) {
+        return new ObjectId();
+    }
+
+    return new ObjectId($id);
 }

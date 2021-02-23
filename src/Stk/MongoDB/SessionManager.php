@@ -7,14 +7,15 @@ namespace Stk\MongoDB;
 use Exception;
 use MongoDB\BSON\UTCDatetime as MongoDate;
 use MongoDB\Collection;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
+use stdClass;
 use Stk\Service\Injectable;
 
 
 class SessionManager implements Injectable, SessionHandlerInterface
 {
-    use LoggerAwareTrait;
+    protected ?LoggerInterface $logger = null;
 
     protected int $timeout;
 
@@ -33,7 +34,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
         $this->init();
     }
 
-    protected function init()
+    protected function init(): void
     {
         session_set_save_handler(
             [$this, 'open'],
@@ -41,6 +42,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
             [$this, 'read'],
             [$this, 'write'],
             [$this, 'destroy'],
+            /** @phpstan-ignore-next-line */
             [$this, 'gc']
         );
     }
@@ -77,7 +79,12 @@ class SessionManager implements Injectable, SessionHandlerInterface
             ], ['typeMap' => ['root' => 'array']]);
 
             if ($session !== null) {
-                $ret = $session["data"];
+                if (is_array($session)) {
+                    $ret = $session["data"];
+                } else {
+                    /** @var stdClass $session */
+                    $ret = $session->data;
+                }
             }
 
         } catch (Exception $e) {
@@ -126,7 +133,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
 
     /**
      * @param int $maxlifetime
-     * @return bool|int
+     * @return int|bool
      */
     public function gc($maxlifetime)
     {
@@ -141,18 +148,23 @@ class SessionManager implements Injectable, SessionHandlerInterface
         }
     }
 
-    public function debug(string $message, array $context = [])
+    public function debug(string $message, array $context = []): void
     {
         if ($this->logger && $this->debug) {
             $this->logger->debug($message, $context);
         }
     }
 
-    public function error(string $message, array $context = [])
+    public function error(string $message, array $context = []): void
     {
         if ($this->logger) {
             $this->logger->error($message, $context);
         }
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 
 }

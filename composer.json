@@ -10,7 +10,7 @@
   "homepage": "https://www.bretterklieber.com",
   "license": "BSD-3-Clause",
   "require": {
-    "php": "^7.4",
+    "php": "^7.4|^8.0",
     "ext-mongodb": "^1.9",
     "mongodb/mongodb": "^1.8.0",
     "mbretter/stk-immutable": "^1",

@@ -13,8 +13,8 @@
     "php": "^7.4|^8.0",
     "ext-mongodb": "^1.9",
     "mongodb/mongodb": "^1.8.0",
-    "mbretter/stk-immutable": "^1",
-    "mbretter/stk-di": "^1",
+    "mbretter/stk-immutable": "^1|^2",
+    "mbretter/stk-di": "^2",
     "psr/log": "^1.1",
     "php-mock/php-mock-phpunit": "^2.6"
   },

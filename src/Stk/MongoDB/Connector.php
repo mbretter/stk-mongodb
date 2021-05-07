@@ -314,8 +314,8 @@ class Connector implements Injectable
      */
     public function find($query = [], $options = []): IteratorIterator
     {
-        if (array_key_exists('_id', $query) && is_string($query['_id'])) {
-            $query['_id'] = new ObjectId($query['_id']);
+        if (array_key_exists('_id', $query)) {
+            $query['_id'] = is_string($query['_id']) ? new ObjectId($query['_id']) : $query['_id'];
         }
 
         $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query,
@@ -346,7 +346,7 @@ class Connector implements Injectable
     }
 
     /**
-     * @param array|string $query
+     * @param array|string|mixed $query
      * @param array $fields
      *
      * @return array|object|null|ImmutableInterface
@@ -354,8 +354,9 @@ class Connector implements Injectable
     public function findOne($query = [], $fields = [])
     {
         if (is_string($query)) {
-            $id    = $query;
-            $query = ['_id' => new ObjectId($id)];
+            $query = ['_id' => new ObjectId($query)];
+        } elseif (is_scalar($query)) {
+            $query = ['_id' => $query];
         }
 
         $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query, true));
@@ -374,8 +375,10 @@ class Connector implements Injectable
      */
     public function query($query = [], $options = []): CursorInterface
     {
-        if (array_key_exists('_id', $query) && is_string($query['_id'])) {
-            $query['_id'] = new ObjectId($query['_id']);
+        if (array_key_exists('_id', $query)) {
+            if (is_string($query['_id'])) {
+                $query['_id'] = new ObjectId($query['_id']);
+            }
         }
 
         return $this->_collection->find($query, $options);

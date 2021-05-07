@@ -54,20 +54,20 @@ class ConntectorTest extends TestCase
         $this->connector = new Connector($this->database, 'users');
     }
 
-    public function testOId()
+    public function testOId(): void
     {
         $objectId = Connector::oId();
         $this->assertInstanceOf(ObjectId::class, $objectId);
     }
 
-    public function testOIdWithString()
+    public function testOIdWithString(): void
     {
         $oid      = new ObjectId();
         $objectId = Connector::oId((string) $oid);
         $this->assertEquals($oid, $objectId);
     }
 
-    public function testSetDatabase()
+    public function testSetDatabase(): void
     {
         $database = $this->createMock(Database::class);
         $database->expects($this->once())
@@ -78,13 +78,13 @@ class ConntectorTest extends TestCase
         $this->connector->setDatabase($database);
     }
 
-    public function testGetDatabase()
+    public function testGetDatabase(): void
     {
         $db = $this->connector->getDatabase();
         $this->assertSame($this->database, $db);
     }
 
-    public function testSetCollection()
+    public function testSetCollection(): void
     {
         $this->database->expects($this->once())
             ->method('selectCollection')
@@ -93,7 +93,7 @@ class ConntectorTest extends TestCase
         $this->connector->setCollection('news');
     }
 
-    public function testGetCollection()
+    public function testGetCollection(): void
     {
         $coll = $this->connector->getCollection();
         $this->assertSame($this->collection, $coll);
@@ -101,7 +101,7 @@ class ConntectorTest extends TestCase
 
     // save
 
-    public function testSaveNewRow()
+    public function testSaveNewRow(): void
     {
         $newOid = new ObjectId();
         $this->insertOneResult->method('getInsertedId')->willReturn($newOid);
@@ -111,7 +111,7 @@ class ConntectorTest extends TestCase
         $this->assertEquals((string) $newOid, $savedRow->get('_id'));
     }
 
-    public function testSaveExistingRow()
+    public function testSaveExistingRow(): void
     {
         $oid      = new ObjectId();
         $row      = new Record([
@@ -123,7 +123,7 @@ class ConntectorTest extends TestCase
 
     // update
 
-    public function testUpdateWithDateTime()
+    public function testUpdateWithDateTime(): void
     {
         $dt  = new DateTime('2019-09-13 21:01:45');
         $oid = new ObjectId();
@@ -144,7 +144,7 @@ class ConntectorTest extends TestCase
         $this->connector->update($row);
     }
 
-    public function testUpdateWithUpsert()
+    public function testUpdateWithUpsert(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -165,7 +165,7 @@ class ConntectorTest extends TestCase
         $this->connector->update($row, [], ['upsert' => true]);
     }
 
-    public function testUpsert()
+    public function testUpsert(): void
     {
         $oid      = new ObjectId();
         $row      = new Record([
@@ -190,7 +190,7 @@ class ConntectorTest extends TestCase
         $this->connector->upsert($criteria, $row);
     }
 
-    public function testUpdateWithFields()
+    public function testUpdateWithFields(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -217,7 +217,7 @@ class ConntectorTest extends TestCase
         $this->connector->update($row, $fields);
     }
 
-    public function testUpdateWithFieldsOverwrite()
+    public function testUpdateWithFieldsOverwrite(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -243,7 +243,7 @@ class ConntectorTest extends TestCase
         $this->connector->update($row, $fields);
     }
 
-    public function testUpdateWithUnset()
+    public function testUpdateWithUnset(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -272,7 +272,7 @@ class ConntectorTest extends TestCase
         $this->connector->update($row, $fields);
     }
 
-    public function testUpdateWithEmpty()
+    public function testUpdateWithEmpty(): void
     {
         $oid = new ObjectId();
         $row = new Record(['_id' => $oid]);
@@ -281,7 +281,7 @@ class ConntectorTest extends TestCase
         $this->assertNull($res);
     }
 
-    public function testUpdateWithCriteria()
+    public function testUpdateWithCriteria(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -305,7 +305,7 @@ class ConntectorTest extends TestCase
         $this->connector->update($row, [], [], $criteria);
     }
 
-    public function testUpdateMany()
+    public function testUpdateMany(): void
     {
         $criteria = [
             'foo2' => 'bar-foo'
@@ -327,7 +327,7 @@ class ConntectorTest extends TestCase
         $this->connector->updateMany($criteria, $fields, []);
     }
 
-    public function testUpdateOne()
+    public function testUpdateOne(): void
     {
         $criteria = [
             'foo2' => 'bar-foo'
@@ -346,7 +346,7 @@ class ConntectorTest extends TestCase
         $this->connector->updateOne($criteria, $fields, []);
     }
 
-    public function testBuildValueSetWithPrefix()
+    public function testBuildValueSetWithPrefix(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -362,7 +362,7 @@ class ConntectorTest extends TestCase
 
     // insert
 
-    public function testInsert()
+    public function testInsert(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -377,7 +377,7 @@ class ConntectorTest extends TestCase
         $this->connector->insert($row);
     }
 
-    public function testInsertMany()
+    public function testInsertMany(): void
     {
         $oid  = new ObjectId();
         $row  = new Record([
@@ -398,7 +398,7 @@ class ConntectorTest extends TestCase
 
     // delete
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $oid = new ObjectId();
         $row = new Record([
@@ -412,7 +412,7 @@ class ConntectorTest extends TestCase
         $this->connector->delete($row);
     }
 
-    public function testDeleteById()
+    public function testDeleteById(): void
     {
         $oid = new ObjectId();
 
@@ -423,7 +423,7 @@ class ConntectorTest extends TestCase
         $this->connector->deleteById((string) $oid);
     }
 
-    public function testDeleteMany()
+    public function testDeleteMany(): void
     {
         $criteria = [
             'foo2' => 'bar-foo'
@@ -438,7 +438,7 @@ class ConntectorTest extends TestCase
 
     // find,fetch
 
-    public function testFind()
+    public function testFind(): void
     {
         $cursor = $this->createMock(Traversable::class);
         $this->collection->expects($this->once())->method('find')->with([], [])->willReturn($cursor);
@@ -447,7 +447,7 @@ class ConntectorTest extends TestCase
         $this->assertInstanceOf(IteratorIterator::class, $ret);
     }
 
-    public function testFindWithQueryId()
+    public function testFindWithQueryId(): void
     {
         $oid    = new ObjectId();
         $cursor = $this->createMock(Traversable::class);
@@ -457,7 +457,16 @@ class ConntectorTest extends TestCase
         $this->assertInstanceOf(IteratorIterator::class, $ret);
     }
 
-    public function testFetch()
+    public function testFindWithIntId(): void
+    {
+        $cursor = $this->createMock(Traversable::class);
+        $this->collection->expects($this->once())->method('find')->with(['_id' => 12], [])->willReturn($cursor);
+
+        $ret = $this->connector->find(['_id' => 12]);
+        $this->assertInstanceOf(IteratorIterator::class, $ret);
+    }
+
+    public function testFetch(): void
     {
         $row1   = new Record(['_id' => new ObjectId()]);
         $row2   = $row1->set('_id', new ObjectId());
@@ -471,7 +480,7 @@ class ConntectorTest extends TestCase
         $this->assertNull($ret);
     }
 
-    public function testFindOne()
+    public function testFindOne(): void
     {
         $row = new Record(['_id' => new ObjectId()]);
         $this->collection->expects($this->once())->method('findOne')->with([], [])->willReturn($row);
@@ -480,7 +489,7 @@ class ConntectorTest extends TestCase
         $this->assertSame($row, $ret);
     }
 
-    public function testFindOneWithIdAsString()
+    public function testFindOneWithIdAsString(): void
     {
         $oid = new ObjectId();
         $row = new Record(['_id' => $oid]);
@@ -490,7 +499,17 @@ class ConntectorTest extends TestCase
         $this->assertSame($row, $ret);
     }
 
-    public function testFindOneWithQuery()
+    public function testFindOneWithIntId(): void
+    {
+        $id  = 22;
+        $row = new Record(['_id' => $id]);
+        $this->collection->expects($this->once())->method('findOne')->with(['_id' => $id], [])->willReturn($row);
+
+        $ret = $this->connector->findOne($id);
+        $this->assertSame($row, $ret);
+    }
+
+    public function testFindOneWithQuery(): void
     {
         $oid = new ObjectId();
         $row = new Record(['_id' => $oid]);
@@ -502,7 +521,7 @@ class ConntectorTest extends TestCase
 
     // query
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $cursor = $this->createMock(CursorInterface::class);
         $this->collection->expects($this->once())->method('find')->with([], [])->willReturn($cursor);
@@ -511,7 +530,7 @@ class ConntectorTest extends TestCase
         $this->assertInstanceOf(Traversable::class, $ret);
     }
 
-    public function testQueryWithQueryId()
+    public function testQueryWithQueryId(): void
     {
         $oid    = new ObjectId();
         $cursor = $this->createMock(CursorInterface::class);
@@ -521,9 +540,19 @@ class ConntectorTest extends TestCase
         $this->assertInstanceOf(Traversable::class, $ret);
     }
 
+    public function testQueryWithQueryWithIntId(): void
+    {
+        $id     = 66;
+        $cursor = $this->createMock(CursorInterface::class);
+        $this->collection->expects($this->once())->method('find')->with(['_id' => $id], [])->willReturn($cursor);
+
+        $ret = $this->connector->query(['_id' => 66]);
+        $this->assertInstanceOf(Traversable::class, $ret);
+    }
+
     // count
 
-    public function testCount()
+    public function testCount(): void
     {
         $this->collection->expects($this->once())->method('countDocuments')->with([], [])->willReturn(10);
 
@@ -531,7 +560,7 @@ class ConntectorTest extends TestCase
         $this->assertEquals(10, $ret);
     }
 
-    public function testCountWithQuery()
+    public function testCountWithQuery(): void
     {
         $query = ['foo' => 'bar'];
         $this->collection->expects($this->once())->method('countDocuments')->with($query, [])->willReturn(5);
@@ -540,7 +569,7 @@ class ConntectorTest extends TestCase
         $this->assertEquals(5, $ret);
     }
 
-    public function testCountWithLimit()
+    public function testCountWithLimit(): void
     {
         $this->collection->expects($this->once())->method('countDocuments')->with([], ['limit' => 10])->willReturn(10);
 
@@ -548,7 +577,7 @@ class ConntectorTest extends TestCase
         $this->assertEquals(10, $ret);
     }
 
-    public function testCountWithSkip()
+    public function testCountWithSkip(): void
     {
         $this->collection->expects($this->once())->method('countDocuments')->with([], ['skip' => 10])->willReturn(5);
 
@@ -559,7 +588,7 @@ class ConntectorTest extends TestCase
     // next Seq
 
 
-    public function testgGetNextSeq()
+    public function testgGetNextSeq(): void
     {
         $this->collection->method('getCollectionName')->willReturn('news');
 
@@ -577,7 +606,7 @@ class ConntectorTest extends TestCase
         $this->assertEquals(1, $ret);
     }
 
-    public function testgGetNextSeqWithName()
+    public function testgGetNextSeqWithName(): void
     {
         $this->collection->expects($this->never())->method('getCollectionName');
 
@@ -595,7 +624,7 @@ class ConntectorTest extends TestCase
         $this->assertEquals(1, $ret);
     }
 
-    public function testgGetNextSeqWithSeqCollectionName()
+    public function testgGetNextSeqWithSeqCollectionName(): void
     {
         $this->collection->method('getCollectionName')->willReturn('news');
 
@@ -615,7 +644,7 @@ class ConntectorTest extends TestCase
 
     // gridfs
 
-    public function testGridFS()
+    public function testGridFS(): void
     {
         $this->database->expects($this->once())
             ->method('selectGridFSBucket')
@@ -625,7 +654,7 @@ class ConntectorTest extends TestCase
 
     // debug
 
-    public function testDebug()
+    public function testDebug(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $this->connector->setLogger($logger);

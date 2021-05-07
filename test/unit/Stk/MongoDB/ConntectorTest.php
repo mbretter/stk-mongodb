@@ -360,6 +360,33 @@ class ConntectorTest extends TestCase
         ], $set);
     }
 
+    public function testUpdateWithIntId(): void
+    {
+        $id  = 234;
+        $row = new Record([
+            '_id' => $id,
+            'foo' => 'bar'
+        ]);
+
+        $fields = [
+            '$set' => [
+                'alice' => 'bob'
+            ]
+        ];
+
+        $this->collection->expects($this->once())->method('updateOne')->with(
+            ['_id' => $id],
+            [
+                '$set' => [
+                    'foo'   => 'bar',
+                    'alice' => 'bob'
+                ]
+            ],
+            []
+        );
+        $this->connector->update($row, $fields);
+    }
+
     // insert
 
     public function testInsert(): void

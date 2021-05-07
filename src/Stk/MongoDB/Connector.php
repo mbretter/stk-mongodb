@@ -176,7 +176,7 @@ class Connector implements Injectable
         }
 
         if ($criteria === null) {
-            $criteria = ['_id' => new ObjectId($row->get('_id'))];
+            $criteria = ['_id' => is_string($row->get('_id')) ? new ObjectId($row->get('_id')) : $row->get('_id')];
         }
 
         $this->debug(__METHOD__ . ':' . $this->_collection->getCollectionName() . ':' . print_r($criteria,

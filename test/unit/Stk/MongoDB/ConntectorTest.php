@@ -423,6 +423,17 @@ class ConntectorTest extends TestCase
         $this->connector->deleteById((string) $oid);
     }
 
+    public function testDeleteByIntId(): void
+    {
+        $id = 99;
+
+        $this->collection->expects($this->once())
+            ->method('deleteOne')
+            ->with(['_id' => $id])
+            ->willReturn($this->createMock(DeleteResult::class));
+        $this->connector->deleteById($id);
+    }
+
     public function testDeleteMany(): void
     {
         $criteria = [

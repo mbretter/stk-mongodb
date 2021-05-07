@@ -261,15 +261,15 @@ class Connector implements Injectable
     /**
      * delete a document by id
      *
-     * @param string $id
+     * @param mixed $id
      *
      * @return DeleteResult
      */
-    public function deleteById(string $id): DeleteResult
+    public function deleteById($id): DeleteResult
     {
         $this->debug(__METHOD__ . ":$id");
 
-        return $this->_collection->deleteOne(['_id' => new ObjectId($id)]);
+        return $this->_collection->deleteOne(['_id' => is_string($id) ? new ObjectId($id) : $id]);
     }
 
     /**

@@ -4,6 +4,7 @@
 
 namespace Stk\MongoDB;
 
+use Closure;
 use Exception;
 use MongoDB\BSON\UTCDatetime as MongoDate;
 use MongoDB\Collection;
@@ -23,6 +24,8 @@ class SessionManager implements Injectable, SessionHandlerInterface
 
     protected bool $debug = false;
 
+    protected ?Closure $onWrite;
+
     public const DEFAULT_TIMEOUT = 86400; // inactivity timeout
 
     public function __construct(Collection $collection, array $config = [])
@@ -30,7 +33,8 @@ class SessionManager implements Injectable, SessionHandlerInterface
         $this->collection = $collection;
 
         $this->timeout = isset($config['timeout']) ? (int) $config['timeout'] : self::DEFAULT_TIMEOUT;
-        $this->debug   = isset($config['debug']) ? (bool) $config['debug'] : false;
+        $this->debug   = isset($config['debug']) && (bool) $config['debug'];
+        $this->onWrite = $config['onWrite'] ?? null;
         $this->init();
     }
 
@@ -97,18 +101,20 @@ class SessionManager implements Injectable, SessionHandlerInterface
     public function write($id, $data): bool
     {
         try {
-            $this->collection->replaceOne(
-                [
-                    '_id' => $id
-                ],
-                [
-                    '_id'     => $id,
-                    'data'    => $data,
-                    'expires' => new MongoDate(1000 * (time() + $this->timeout))
-                ],
-                [
-                    'upsert' => true
-                ]);
+            $set = [
+                '_id'     => $id,
+                'data'    => $data,
+                'expires' => new MongoDate(1000 * (time() + $this->timeout))
+            ];
+
+            if ($this->onWrite !== null) {
+                $onWrite = $this->onWrite;
+                $extra   = $onWrite($id, $data);
+                if (is_array($extra)) {
+                    $set = array_merge($extra, $set);
+                }
+            }
+            $this->collection->replaceOne(['_id' => $id], $set, ['upsert' => true]);
         } catch (Exception $e) {
             $this->error(__METHOD__ . ':' . $e->getMessage());
 

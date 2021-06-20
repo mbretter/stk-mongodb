@@ -103,4 +103,58 @@ class SessionManagerTest extends TestCase
         $res     = $manager->write($sid, $data);
         $this->assertFalse($res);
     }
+
+    public function testWriteWithOnWriteHook()
+    {
+        $sid  = "foo";
+        $data = 'foo|s:3:"bar";';
+        $this->collection->expects($this->once())
+            ->method("replaceOne")
+            ->with(
+                [
+                    '_id' => $sid
+                ],
+                [
+                    '_id'     => $sid,
+                    'data'    => $data,
+                    'user_id' => 3,
+                    'expires' => new MongoDate(1000 * (time() + SessionManager::DEFAULT_TIMEOUT))
+                ],
+                [
+                    'upsert' => true
+                ]);
+
+        $manager = new SessionManager($this->collection, ['onWrite' => function($id, &$data) {
+            return ['user_id' => 3];
+        }]);
+
+        $res     = $manager->write($sid, $data);
+        $this->assertTrue($res);
+    }
+
+    public function testWriteWithOnWriteHookNoArrayReturn()
+    {
+        $sid  = "foo";
+        $data = 'foo|s:3:"bar";';
+        $this->collection->expects($this->once())
+            ->method("replaceOne")
+            ->with(
+                [
+                    '_id' => $sid
+                ],
+                [
+                    '_id'     => $sid,
+                    'data'    => $data,
+                    'expires' => new MongoDate(1000 * (time() + SessionManager::DEFAULT_TIMEOUT))
+                ],
+                [
+                    'upsert' => true
+                ]);
+
+        $manager = new SessionManager($this->collection, ['onWrite' => function($id, &$data) {
+        }]);
+
+        $res     = $manager->write($sid, $data);
+        $this->assertTrue($res);
+    }
 }

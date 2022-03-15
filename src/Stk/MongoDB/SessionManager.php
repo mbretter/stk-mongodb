@@ -137,11 +137,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
         return true;
     }
 
-    /**
-     * @param int $maxlifetime
-     * @return int|bool
-     */
-    public function gc($maxlifetime)
+    public function gc(int $max_lifetime): int|false
     {
         try {
             $res = $this->collection->deleteMany(['expires' => ['$lt' => new MongoDate(time() * 1000)]]);

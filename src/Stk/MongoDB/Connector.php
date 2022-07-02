@@ -347,11 +347,11 @@ class Connector implements Injectable
 
     /**
      * @param array|string|mixed $query
-     * @param array $fields
+     * @param array $options
      *
      * @return array|object|null|ImmutableInterface
      */
-    public function findOne($query = [], $fields = [])
+    public function findOne($query = [], $options = [])
     {
         if (is_string($query)) {
             $query = ['_id' => new ObjectId($query)];
@@ -361,7 +361,7 @@ class Connector implements Injectable
 
         $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query, true));
 
-        return $this->_collection->findOne($query, $fields);
+        return $this->_collection->findOne($query, $options);
     }
 
     /**

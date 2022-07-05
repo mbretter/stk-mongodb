@@ -11,7 +11,7 @@
   "license": "BSD-3-Clause",
   "require": {
     "php": ">=8.0.0",
-    "mongodb/mongodb": "^1.11.0",
+    "mongodb/mongodb": "^1",
     "mbretter/stk-immutable": "^1|^2",
     "mbretter/stk-di": "^2",
     "psr/log": ">=2.0.0",

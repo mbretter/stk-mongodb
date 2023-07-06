@@ -1,34 +1,40 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
 
 jobs:
-  ci:
+  build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: php-actions/composer@v6
-        with:
-          php_version: "8.1"
+    - uses: actions/checkout@v3
 
-# php version is ignored, php-cs does not run on 8.1
-#      - name: coding style
-#        uses: php-actions/composer@v6
-#        with:
-#          php_version: 8.0
-#          command: cs-check
+    # - name: Validate composer.json and composer.lock
+    #  run: composer validate --strict
 
-      - name: static code analysis
-        uses: php-actions/composer@v6
-        with:
-          php_version: "8.1"
-          php_extensions: mongodb
-          command: analyse
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        extensions: mongodb
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
 
-      - name: unit tests
-        uses: php-actions/composer@v6
-        with:
-          php_version: "8.1"
-          php_extensions: mongodb
-          command: test-unit
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    - name: Run test suite
+      run: composer test-unit

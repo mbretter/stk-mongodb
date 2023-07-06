@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
         with:
-          php_version: 8.1
+          php_version: "8.1"
 
 # php version is ignored, php-cs does not run on 8.1
 #      - name: coding style
@@ -22,13 +22,13 @@ jobs:
       - name: static code analysis
         uses: php-actions/composer@v6
         with:
-          php_version: 8.1
+          php_version: "8.1"
           php_extensions: mongodb
           command: analyse
 
       - name: unit tests
         uses: php-actions/composer@v6
         with:
-          php_version: 8.1
+          php_version: "8.1"
           php_extensions: mongodb
           command: test-unit

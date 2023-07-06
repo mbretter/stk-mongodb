@@ -21,7 +21,6 @@ use stdClass;
 use Stk\Immutable\ImmutableInterface;
 use Stk\Service\Injectable;
 
-
 class Connector implements Injectable
 {
     protected ?LoggerInterface $logger = null;
@@ -179,8 +178,10 @@ class Connector implements Injectable
             $criteria = ['_id' => is_string($row->get('_id')) ? new ObjectId($row->get('_id')) : $row->get('_id')];
         }
 
-        $this->debug(__METHOD__ . ':' . $this->_collection->getCollectionName() . ':' . print_r($criteria,
-                true) . ':' . print_r($fields, true));
+        $this->debug(__METHOD__ . ':' . $this->_collection->getCollectionName() . ':' . print_r(
+            $criteria,
+            true
+        ) . ':' . print_r($fields, true));
 
         return $this->_collection->updateOne($criteria, $fields, $options);
     }
@@ -265,7 +266,7 @@ class Connector implements Injectable
      *
      * @return DeleteResult
      */
-    public function deleteById($id): DeleteResult
+    public function deleteById(mixed $id): DeleteResult
     {
         $this->debug(__METHOD__ . ":$id");
 
@@ -293,10 +294,14 @@ class Connector implements Injectable
      * @param array $fields
      * @param array $options
      *
-     * @return UpdateResult
+     * @return ?UpdateResult
      */
-    public function upsert(array $criteria, ImmutableInterface $row, $fields = [], $options = []): ?UpdateResult
-    {
+    public function upsert(
+        array $criteria,
+        ImmutableInterface $row,
+        array $fields = [],
+        array $options = []
+    ): ?UpdateResult {
         $options['upsert'] = true;
 
         return $this->update($row, $fields, $options, $criteria);
@@ -304,7 +309,7 @@ class Connector implements Injectable
 
     /**
      * IterartorIterator can be traversed using fetch(), usable when migrating from the legacy mongodb driver
-     * may also be used, if traversing the result set more then once
+     * may also be used, if traversing the result set more than once
      * implicitely transform _id string to ObjectId
      *
      * @param array $query
@@ -312,14 +317,16 @@ class Connector implements Injectable
      *
      * @return IteratorIterator
      */
-    public function find($query = [], $options = []): IteratorIterator
+    public function find(array $query = [], array $options = []): IteratorIterator
     {
         if (array_key_exists('_id', $query)) {
             $query['_id'] = is_string($query['_id']) ? new ObjectId($query['_id']) : $query['_id'];
         }
 
-        $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r($query,
-                true) . ' options:' . print_r($options, true));
+        $this->debug(__METHOD__ . ":" . $this->_collection . ":" . print_r(
+            $query,
+            true
+        ) . ' options:' . print_r($options, true));
 
         $cursor = $this->_collection->find($query, $options);
         $it     = new IteratorIterator($cursor);
@@ -351,7 +358,7 @@ class Connector implements Injectable
      *
      * @return array|object|null|ImmutableInterface
      */
-    public function findOne($query = [], $options = [])
+    public function findOne(mixed $query = [], array $options = []): object|array|null
     {
         if (is_string($query)) {
             $query = ['_id' => new ObjectId($query)];
@@ -366,14 +373,14 @@ class Connector implements Injectable
 
     /**
      * returns a traversable cursor result can be directly used with foreach
-     * cursor can only traversed once
+     * cursor can only be traversed once
      *
      * @param array $query
      * @param array $options
      *
      * @return CursorInterface
      */
-    public function query($query = [], $options = []): CursorInterface
+    public function query(array $query = [], array $options = []): CursorInterface
     {
         if (array_key_exists('_id', $query)) {
             if (is_string($query['_id'])) {
@@ -391,7 +398,7 @@ class Connector implements Injectable
      *
      * @return int
      */
-    public function count($query = [], $limit = 0, $skip = 0): int
+    public function count(array $query = [], int $limit = 0, int $skip = 0): int
     {
         $options = [];
         if ($limit > 0) {
@@ -408,20 +415,27 @@ class Connector implements Injectable
      * returns a sequence number
      *
      * @param ?string $name the name of the sequence, defaults to the current selected collection name
-     * @param string $seqCollection the collection holding the sequence values
+     * @param ?string $seqCollection the collection holding the sequence values
+     * @param array $filters additional filtes
      *
      * @return int
      */
-    public function getNextSeq(string $name = null, string $seqCollection = 'sequence'): int
+    public function getNextSeq(string $name = null, string $seqCollection = null, array $filters = []): int
     {
         if ($name === null) {
             $name = $this->_collection->getCollectionName();
         }
 
+        if ($seqCollection === null) {
+            $seqCollection = 'sequence';
+        }
+
         $coll = $this->_database->selectCollection($seqCollection);
-        $ret  = $coll->findOneAndUpdate(['_id' => $name], ['$inc' => ['seq' => 1]], [
+
+        $filters['_id'] = $name;
+        $ret            = $coll->findOneAndUpdate($filters, ['$inc' => ['seq' => 1]], [
             'upsert'         => true,
-            'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
+            'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER,
         ]);
 
         if ($ret === null) {

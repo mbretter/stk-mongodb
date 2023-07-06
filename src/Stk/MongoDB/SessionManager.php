@@ -13,7 +13,6 @@ use SessionHandlerInterface;
 use stdClass;
 use Stk\Service\Injectable;
 
-
 class SessionManager implements Injectable, SessionHandlerInterface
 {
     protected ?LoggerInterface $logger = null;
@@ -56,11 +55,11 @@ class SessionManager implements Injectable, SessionHandlerInterface
         session_write_close();
     }
 
-    public function open($save_path, $name): bool
+    public function open(string $path, string $name): bool
     {
         global $sess_save_path;
 
-        $sess_save_path = $save_path;
+        $sess_save_path = $path;
 
         return true;
     }
@@ -70,7 +69,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
         return true;
     }
 
-    public function read($id): string
+    public function read(string $id): string|false
     {
         $ret = "";
 
@@ -98,7 +97,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
         return $ret;
     }
 
-    public function write($id, $data): bool
+    public function write(string $id, string $data): bool
     {
         try {
             $set = [
@@ -124,7 +123,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
         return true;
     }
 
-    public function destroy($id): bool
+    public function destroy(string $id): bool
     {
         try {
             $this->collection->deleteOne(['_id' => $id]);
@@ -142,7 +141,13 @@ class SessionManager implements Injectable, SessionHandlerInterface
         try {
             $res = $this->collection->deleteMany(['expires' => ['$lt' => new MongoDate(time() * 1000)]]);
 
-            return $res->getDeletedCount();
+            $delCount = $res->getDeletedCount();
+            // null means delete has not yet been acknowledged
+            if ($delCount === null) {
+                return false;
+            }
+
+            return $delCount;
         } catch (Exception $e) {
             $this->error(__METHOD__ . ':' . $e->getMessage());
 
@@ -170,4 +175,3 @@ class SessionManager implements Injectable, SessionHandlerInterface
     }
 
 }
-

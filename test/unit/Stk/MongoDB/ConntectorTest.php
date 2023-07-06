@@ -27,17 +27,13 @@ use Traversable;
 
 class ConntectorTest extends TestCase
 {
-    /** @var Client|MockObject */
-    protected $client;
+    protected Client|MockObject $client;
 
-    /** @var Database|MockObject */
-    protected $database;
+    protected Database|MockObject $database;
 
-    /** @var Collection|MockObject */
-    protected $collection;
+    protected Collection|MockObject $collection;
 
-    /** @var InsertOneResult|MockObject */
-    protected $insertOneResult;
+    protected InsertOneResult|MockObject $insertOneResult;
 
     protected Connector $connector;
 
@@ -677,6 +673,27 @@ class ConntectorTest extends TestCase
         )->willReturn((object) ['seq' => 1]);
 
         $ret = $this->connector->getNextSeq(null, 'mycollectionname');
+        $this->assertEquals(1, $ret);
+    }
+
+    public function testGetNextSeqWithFilter(): void
+    {
+        $this->collection->method('getCollectionName')->willReturn('news');
+
+        $this->database->expects($this->once())->method('selectCollection')->with('sequence');
+        $this->collection->expects($this->once())->method('findOneAndUpdate')->with(
+            [
+                '_id' => 'news',
+                'foo' => 'bar'
+            ],
+            ['$inc' => ['seq' => 1]],
+            [
+                'upsert'         => true,
+                'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER
+            ]
+        )->willReturn((object) ['seq' => 1]);
+
+        $ret = $this->connector->getNextSeq(null, null, ['foo' => 'bar']);
         $this->assertEquals(1, $ret);
     }
 

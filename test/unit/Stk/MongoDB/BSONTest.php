@@ -161,7 +161,7 @@ class BSONData extends Map implements Persistable
         return $this->_bsonSerialize($this->_data);
     }
 
-    public function bsonUnserialize(array $data)
+    public function bsonUnserialize(array $data): void
     {
         $this->_data = $this->_bsonUnserialize($data);
     }

@@ -156,7 +156,7 @@ class BSONData extends Map implements Persistable
 {
     use BSON;
 
-    public function bsonSerialize()
+    public function bsonSerialize(): array|object
     {
         return $this->_bsonSerialize($this->_data);
     }

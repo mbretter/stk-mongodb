@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b989d8fd5368d4017cd475c3950d9148",
+    "content-hash": "c85c8cfb42bbb0896806f56e909fdce3",
     "packages": [
         {
             "name": "jean85/pretty-package-versions",
@@ -4199,7 +4199,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.1.0",
+        "php": ">=8.0.0",
         "ext-mongodb": "*"
     },
     "platform-dev": [],

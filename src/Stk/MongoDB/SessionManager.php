@@ -42,6 +42,7 @@ class SessionManager implements Injectable, SessionHandlerInterface
         session_set_save_handler(
             [$this, 'open'],
             [$this, 'close'],
+            /** @phpstan-ignore-next-line */
             [$this, 'read'],
             [$this, 'write'],
             [$this, 'destroy'],

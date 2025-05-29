@@ -378,7 +378,7 @@ class Connector implements Injectable
      * @param array $query
      * @param array $options
      *
-     * @return CursorInterface
+     * @return CursorInterface|CursorInterface<ImmutableInterface>
      */
     public function query(array $query = [], array $options = []): CursorInterface
     {

@@ -3,6 +3,7 @@
 namespace StkTest\MongoDB;
 
 use DateTime;
+use MongoDB\BSON\Document;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Persistable;
 use MongoDB\BSON\UTCDateTime;
@@ -65,7 +66,7 @@ class BSONTest extends TestCase
         $this->assertEquals([
             '_id' => new ObjectId('5c49d90ffbab771ca667abe1'),
             'x'   => 'foo',
-            'y'   => new UTCDateTime('1641473096000'),
+            'y'   => new UTCDateTime(1641473096000),
         ], $a->bsonSerialize());
     }
 
@@ -83,7 +84,7 @@ class BSONTest extends TestCase
             '_id' => new ObjectId('5c49d90ffbab771ca667abe1'),
             'x'   => 'foo',
             'y'   => [
-                'a' => new UTCDateTime('1641473096000')
+                'a' => new UTCDateTime(1641473096000)
             ]
         ], $a->bsonSerialize());
     }
@@ -135,7 +136,7 @@ class BSONTest extends TestCase
             '_id' => new ObjectId('5c49d90ffbab771ca667abe1'),
             'x'   => 'foo',
             'y'   => [
-                'dt' => new UTCDateTime('1641473096000')
+                'dt' => new UTCDateTime(1641473096000)
             ],
         ];
 
@@ -156,7 +157,7 @@ class BSONData extends Map implements Persistable
 {
     use BSON;
 
-    public function bsonSerialize(): array|object
+    public function bsonSerialize(): array|Document|stdClass
     {
         return $this->_bsonSerialize($this->_data);
     }

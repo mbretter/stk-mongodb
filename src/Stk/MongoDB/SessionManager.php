@@ -13,7 +13,7 @@ use SessionHandlerInterface;
 use stdClass;
 use Stk\Service\Injectable;
 
-class SessionManager implements Injectable, SessionHandlerInterface
+class     SessionManager implements Injectable, SessionHandlerInterface
 {
     protected ?LoggerInterface $logger = null;
 
@@ -142,13 +142,11 @@ class SessionManager implements Injectable, SessionHandlerInterface
         try {
             $res = $this->collection->deleteMany(['expires' => ['$lt' => new MongoDate(time() * 1000)]]);
 
-            $delCount = $res->getDeletedCount();
-            // null means delete has not yet been acknowledged
-            if ($delCount === null) {
+            if (!$res->isAcknowledged()) {
                 return false;
             }
 
-            return $delCount;
+            return $res->getDeletedCount();
         } catch (Exception $e) {
             $this->error(__METHOD__ . ':' . $e->getMessage());
 

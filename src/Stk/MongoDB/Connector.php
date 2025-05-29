@@ -136,7 +136,7 @@ class Connector implements Injectable
     /**
      * pass through to collections insertMany
      *
-     * @param ImmutableInterface[] $rows
+     * @param list<object|array> $rows
      * @param array $options
      *
      * @return InsertManyResult

@@ -474,7 +474,7 @@ class ConntectorTest extends TestCase
 
     public function testFind(): void
     {
-        $cursor = $this->createMock(Traversable::class);
+        $cursor = $this->createMock(CursorInterface::class);
         $this->collection->expects($this->once())->method('find')->with([], [])->willReturn($cursor);
 
         $ret = $this->connector->find();
@@ -484,7 +484,7 @@ class ConntectorTest extends TestCase
     public function testFindWithQueryId(): void
     {
         $oid    = new ObjectId();
-        $cursor = $this->createMock(Traversable::class);
+        $cursor = $this->createMock(CursorInterface::class);
         $this->collection->expects($this->once())->method('find')->with(['_id' => $oid], [])->willReturn($cursor);
 
         $ret = $this->connector->find(['_id' => (string) $oid]);
@@ -493,7 +493,7 @@ class ConntectorTest extends TestCase
 
     public function testFindWithIntId(): void
     {
-        $cursor = $this->createMock(Traversable::class);
+        $cursor = $this->createMock(CursorInterface::class);
         $this->collection->expects($this->once())->method('find')->with(['_id' => 12], [])->willReturn($cursor);
 
         $ret = $this->connector->find(['_id' => 12]);

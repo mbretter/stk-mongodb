@@ -1,6 +1,8 @@
 parameters:
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        - identifier: trait.unused
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
     level: 8
     paths:
         - src

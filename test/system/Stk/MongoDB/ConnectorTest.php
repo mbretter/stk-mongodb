@@ -33,7 +33,7 @@ class ConnectorTest extends TestCase
         $this->database->drop();
     }
 
-    public function testCRUDSimple()
+    public function testCRUDSimple(): void
     {
         $conn = new Connector($this->database, 'test1');
         $data = new PersistableObject([
@@ -62,7 +62,7 @@ class ConnectorTest extends TestCase
         $this->assertEquals(1, $result->getDeletedCount());
     }
 
-    public function testSaveWithInsert()
+    public function testSaveWithInsert(): void
     {
         $conn = new Connector($this->database, 'test1');
         $data = new PersistableObject((object)['a' => 1234, 'b' => 876]);
@@ -74,7 +74,7 @@ class ConnectorTest extends TestCase
         $this->assertNotSame($data, $saved);
     }
 
-    public function testSaveWithUpdate()
+    public function testSaveWithUpdate(): void
     {
         $conn = new Connector($this->database, 'test1');
         $data = new PersistableObject((object)['a' => 1234, 'b' => 876]);
@@ -99,7 +99,7 @@ class ConnectorTest extends TestCase
         $this->assertEquals(1234, $row->get('c'));
     }
 
-    public function testDateTime()
+    public function testDateTime(): void
     {
         $dateTime = new DateTime('@' . time()); // avoid usecs, which is not supported by mongodb
         $conn     = new Connector($this->database, 'test1');
@@ -117,7 +117,7 @@ class ConnectorTest extends TestCase
         $this->assertEquals($row->get('created'), $dateTime);
     }
 
-    public function testId()
+    public function testId(): void
     {
         $conn = new Connector($this->database, 'test1');
         $data = new PersistableObject();

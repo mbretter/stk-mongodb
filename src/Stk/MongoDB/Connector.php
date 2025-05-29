@@ -315,7 +315,7 @@ class Connector implements Injectable
      * @param array $query
      * @param array $options
      *
-     * @return IteratorIterator
+     * @return IteratorIterator|IteratorIterator<ImmutableInterface>
      */
     public function find(array $query = [], array $options = []): IteratorIterator
     {

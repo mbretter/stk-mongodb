@@ -13,7 +13,7 @@ use SessionHandlerInterface;
 use stdClass;
 use Stk\Service\Injectable;
 
-class     SessionManager implements Injectable, SessionHandlerInterface
+class SessionManager implements Injectable, SessionHandlerInterface
 {
     protected ?LoggerInterface $logger = null;
 
